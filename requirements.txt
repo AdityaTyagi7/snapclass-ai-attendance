@@ -1,24 +1,26 @@
-streamlit
-# Utilitites 
+# Web Backend API
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+
+# Database & Authentication
+supabase
+bcrypt
+
+# Utilities & Data
 numpy
 pandas
+pillow
 
-# FACE RECOGNITION
+# Face Recognition
 scikit-learn
 dlib-bin
 git+https://github.com/ageitgey/face_recognition_models
 setuptools<70.0.0
 
-
-supabase
-bcrypt
-
-
-
-segno
-pillow
-
-
-
+# Voice Recognition
 librosa
 resemblyzer
+webrtcvad-wheels; sys_platform == 'win32'
+webrtcvad; sys_platform != 'win32'
