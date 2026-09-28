@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-dark: #212121;
+  --color-surface: #323232;
+  --color-teal-brand: #0D7377;
+  --color-cyan-brand: #14FFEC;
+}
+
+@layer base {
+  body {
+    background-color: #212121;
+    color: #ffffff;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: #0D7377;
+    color: #14FFEC;
+  }
+}
+
+/* Custom sleek scrollbar with Teal & Cyan accents */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #212121;
+}
+::-webkit-scrollbar-thumb {
+  background: #0D7377;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #14FFEC;
+}
