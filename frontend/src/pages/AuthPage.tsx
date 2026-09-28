@@ -3,7 +3,6 @@
 import * as React from "react";
 import { useState } from "react";
 import {
-  ChevronLeft,
   Loader2,
   Lock,
   User,
@@ -12,8 +11,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   ScanFace,
-  Fingerprint,
-  Sparkles,
+  ChevronLeft,
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 
@@ -21,8 +19,6 @@ import { cn } from "../lib/utils";
 import { useAuth } from "../context/AuthContext";
 import { authApi } from "../api/authApi";
 import { useToast } from "../components/ui/Toast";
-import { Button } from "../components/ui/Button";
-import { Input } from "../components/ui/Input";
 import { CameraModal } from "../components/widgets/CameraModal";
 import { AudioRecorder } from "../components/widgets/AudioRecorder";
 
@@ -35,9 +31,14 @@ const stagger = (index: number, step = 60): React.CSSProperties => ({
 
 const BrandMark = ({ className }: { className?: string }) => {
   return (
-    <div className={cn("flex items-center justify-center rounded-xl bg-gradient-to-br from-[#0D7377] to-[#14FFEC] p-2 shadow-lg shadow-[#0D7377]/40", className)}>
-      <ShieldCheck className="h-5 w-5 text-[#212121]" />
-    </div>
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+      className={cn("size-6 text-white", className)}
+    >
+      <path d="M2.3 12h2.4v10.95h6.2V14.6h4.6v8.35h6.2V12h-2.4V1.05h-6.2V9.4H8.5V1.05H2.3Z" />
+    </svg>
   );
 };
 
@@ -63,7 +64,7 @@ const FloatingPaths = ({ position }: { position: number }) => {
   return (
     <div className="pointer-events-none absolute inset-0">
       <svg
-        className="h-full w-full text-[#0D7377]"
+        className="h-full w-full text-white"
         fill="none"
         viewBox="0 0 696 316"
       >
@@ -78,8 +79,8 @@ const FloatingPaths = ({ position }: { position: number }) => {
                 : { pathLength: 1, pathOffset: [0, 1, 0] }
             }
             stroke="currentColor"
-            className="opacity-70"
-            strokeOpacity={0.15 + path.id * 0.025}
+            className="opacity-60"
+            strokeOpacity={0.08 + path.id * 0.025}
             strokeWidth={path.width}
             transition={{
               duration: 20 + jitter(path.id) * 10,
@@ -245,19 +246,19 @@ export const AuthPage: React.FC = () => {
   return (
     <section
       data-slot="login"
-      className="relative min-h-svh overflow-hidden bg-[#212121] text-white lg:grid lg:grid-cols-2 selection:bg-[#0D7377] selection:text-[#14FFEC]"
+      className="relative min-h-svh overflow-hidden bg-[#09090b] text-[#fafafa] lg:grid lg:grid-cols-2"
     >
-      {/* LEFT SHOWCASE PANEL (Hirael Login-03 Aside) */}
+      {/* LEFT ASIDE (Hirael Login-03 Aside) */}
       <aside
         data-slot="login-aside"
-        className="relative hidden h-full flex-col overflow-hidden border-e border-[#0D7377]/30 bg-[#323232] p-10 lg:flex justify-between"
+        className="relative hidden h-full flex-col overflow-hidden border-e border-[#27272a] bg-[#0c0c0e] p-10 lg:flex justify-between"
       >
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "linear-gradient(to bottom, transparent, rgba(33, 33, 33, 0.4), #212121)",
+              "linear-gradient(to bottom, transparent, transparent, #09090b)",
           }}
         />
 
@@ -268,79 +269,68 @@ export const AuthPage: React.FC = () => {
         </div>
 
         {/* Brand Header */}
-        <div className={cn(ENTER, "relative z-10 flex items-center gap-3")}>
-          <BrandMark />
-          <div>
-            <span className="text-lg font-bold tracking-tight text-white font-mono">
-              SnapClass
-            </span>
-            <span className="ml-2 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#0D7377] text-[#14FFEC] border border-[#14FFEC]/30">
-              AI Attendance
-            </span>
-          </div>
+        <div className={cn(ENTER, "relative z-10 flex items-center gap-2.5")}>
+          <BrandMark className="size-6 text-white" />
+          <span className="text-base font-semibold tracking-[-0.025em] text-white">
+            SnapClass
+          </span>
         </div>
 
-        {/* Testimonial / Architecture Hero Quote */}
+        {/* Quote Section */}
         <figure
           style={stagger(4)}
-          className={cn(ENTER, "relative z-10 mt-auto flex flex-col gap-4 max-w-lg")}
+          className={cn(ENTER, "relative z-10 mt-auto flex flex-col gap-3 max-w-lg")}
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#212121]/80 border border-[#0D7377] text-[#14FFEC] text-xs font-bold w-fit shadow-md">
-            <Sparkles className="w-3.5 h-3.5 animate-pulse text-[#14FFEC]" />
-            <span>Dual-Modal Biometric Engine</span>
-          </div>
-
-          <blockquote className="font-serif text-2xl leading-[1.3] tracking-tight text-zinc-100 md:text-3xl">
-            "Automated attendance with 68-point spatial facial landmarks and neural voiceprints.{" "}
-            <span className="italic text-[#14FFEC]">Instant verification</span> without interrupting the lecture."
+          <blockquote className="font-serif text-2xl leading-[1.25] tracking-tight text-[#fafafa] md:text-3xl">
+            "Automated classroom attendance with spatial facial landmarks and neural voiceprints.{" "}
+            <span className="italic text-white">Never manual roll calls again</span>."
           </blockquote>
-          
-          <figcaption className="flex items-center gap-2 text-xs uppercase tracking-wider text-zinc-400 font-mono">
-            <span>FastAPI + PyTorch Engine</span>
-            <span aria-hidden className="text-[#0D7377]">
+          <figcaption className="flex items-center gap-2 text-xs uppercase text-[#a1a1aa] font-mono">
+            <span>AI Platform</span>
+            <span aria-hidden className="text-[#3f3f46]">
               |
             </span>
-            <span>Real-time Supabase Core</span>
+            <span>Enterprise Core</span>
           </figcaption>
         </figure>
       </aside>
 
-      {/* RIGHT AUTH PANEL (Hirael Login-03 Main) */}
+      {/* RIGHT MAIN (Hirael Login-03 Main) */}
       <div
         data-slot="login-main"
-        className="relative flex min-h-svh flex-col justify-center px-6 sm:px-12 py-10 lg:min-h-0 bg-[#212121]"
+        className="relative flex min-h-svh flex-col justify-center px-8 py-10 lg:min-h-0 bg-[#09090b]"
       >
-        {/* Ambient Radial Gradient Accents */}
+        {/* Hirael Template Subtle Radial Glows */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-0 opacity-40 overflow-hidden"
+          className="pointer-events-none absolute inset-0 z-0 opacity-60 overflow-hidden"
         >
           <div
-            className="absolute end-0 top-0 h-[450px] w-[350px] -translate-y-40 rounded-full"
+            className="absolute end-0 top-0 h-[320px] w-[140px] -translate-y-[88px] rounded-full"
             style={{
               background:
-                "radial-gradient(50% 50% at 50% 50%, rgba(20, 255, 236, 0.15) 0, rgba(13, 115, 119, 0.1) 60%, transparent 100%)",
+                "radial-gradient(68.54% 68.72% at 55.02% 31.46%, rgba(255, 255, 255, 0.06) 0, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.01) 80%)",
             }}
           />
           <div
-            className="absolute start-0 bottom-0 h-[350px] w-[350px] translate-y-32 rounded-full"
+            className="absolute end-0 top-0 h-[320px] w-[60px] translate-x-[5%] -translate-y-1/2 rounded-full"
             style={{
               background:
-                "radial-gradient(50% 50% at 50% 50%, rgba(13, 115, 119, 0.2) 0, transparent 80%)",
+                "radial-gradient(50% 50% at 50% 50%, rgba(255, 255, 255, 0.04) 0, rgba(255, 255, 255, 0.01) 80%, transparent 100%)",
             }}
           />
         </div>
 
-        {/* Portal Switcher */}
-        <div className={cn(ENTER, "relative z-10 mx-auto w-full max-w-md flex justify-between items-center mb-6")}>
+        {/* Portal Switcher & Top Mobile Brand */}
+        <div className={cn(ENTER, "relative z-10 mx-auto w-full max-w-sm flex items-center justify-between mb-4")}>
           <div className="flex items-center gap-2 lg:hidden">
-            <BrandMark />
-            <span className="text-base font-bold tracking-tight text-white">
+            <BrandMark className="size-6 text-white" />
+            <span className="text-base font-semibold tracking-[-0.025em] text-white">
               SnapClass
             </span>
           </div>
 
-          <div className="flex items-center p-1 bg-[#323232] rounded-xl border border-[#0D7377]/60 shadow-lg ml-auto">
+          <div className="flex items-center p-1 bg-[#18181b] rounded-xl border border-[#27272a] shadow-xs ml-auto">
             <button
               type="button"
               onClick={() => {
@@ -348,10 +338,10 @@ export const AuthPage: React.FC = () => {
                 setScanStep("camera");
               }}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer",
                 activePortal === "teacher"
-                  ? "bg-[#0D7377] text-[#14FFEC] shadow-sm border border-[#14FFEC]/40"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-white text-black font-semibold shadow-xs"
+                  : "text-[#a1a1aa] hover:text-white"
               )}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
@@ -364,10 +354,10 @@ export const AuthPage: React.FC = () => {
                 setScanStep("camera");
               }}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer",
                 activePortal === "student"
-                  ? "bg-[#0D7377] text-[#14FFEC] shadow-sm border border-[#14FFEC]/40"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-white text-black font-semibold shadow-xs"
+                  : "text-[#a1a1aa] hover:text-white"
               )}
             >
               <ScanFace className="w-3.5 h-3.5" />
@@ -376,48 +366,46 @@ export const AuthPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Form Container */}
+        {/* Login Panel Content */}
         <div
           data-slot="login-panel"
-          className="relative z-10 mx-auto w-full space-y-6 max-w-md"
+          className="relative z-10 mx-auto w-full space-y-6 max-w-sm"
         >
           {/* TEACHER PORTAL */}
           {activePortal === "teacher" && (
             <>
               <div data-slot="login-header" className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <h1
-                    style={stagger(1)}
-                    className={cn(
-                      ENTER,
-                      "font-serif text-3xl font-medium tracking-tight text-white sm:text-4xl"
-                    )}
-                  >
-                    {teacherMode === "login" ? "Sign in to class." : "Join as Faculty."}
-                  </h1>
-                </div>
+                <h1
+                  style={stagger(1)}
+                  className={cn(
+                    ENTER,
+                    "font-serif text-4xl font-medium tracking-tight text-white sm:text-5xl"
+                  )}
+                >
+                  {teacherMode === "login" ? "Sign in or join." : "Create account."}
+                </h1>
                 <p
                   style={stagger(2)}
-                  className={cn(ENTER, "text-sm text-zinc-400")}
+                  className={cn(ENTER, "text-sm text-[#a1a1aa]")}
                 >
                   {teacherMode === "login"
-                    ? "Enter your credentials to launch attendance scans and review logs."
-                    : "Create a faculty account to register subjects and track enrollment."}
+                    ? "Enter your credentials to access class management."
+                    : "Register to manage subjects and take attendance."}
                 </p>
 
-                {/* Sub-mode Tab Selector */}
+                {/* Sub-mode Tab Switcher */}
                 <div
                   style={stagger(2.5)}
-                  className={cn(ENTER, "flex bg-[#323232] rounded-xl p-1 border border-[#0D7377]/40 mt-1")}
+                  className={cn(ENTER, "flex bg-[#18181b] rounded-xl p-1 border border-[#27272a] mt-1")}
                 >
                   <button
                     type="button"
                     onClick={() => setTeacherMode("login")}
                     className={cn(
-                      "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer",
+                      "flex-1 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer",
                       teacherMode === "login"
-                        ? "bg-[#0D7377] text-[#14FFEC] shadow-sm"
-                        : "text-zinc-400 hover:text-white"
+                        ? "bg-[#27272a] text-white font-semibold shadow-xs"
+                        : "text-[#a1a1aa] hover:text-white"
                     )}
                   >
                     Instructor Login
@@ -426,10 +414,10 @@ export const AuthPage: React.FC = () => {
                     type="button"
                     onClick={() => setTeacherMode("register")}
                     className={cn(
-                      "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer",
+                      "flex-1 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer",
                       teacherMode === "register"
-                        ? "bg-[#0D7377] text-[#14FFEC] shadow-sm"
-                        : "text-zinc-400 hover:text-white"
+                        ? "bg-[#27272a] text-white font-semibold shadow-xs"
+                        : "text-[#a1a1aa] hover:text-white"
                     )}
                   >
                     New Registration
@@ -443,49 +431,59 @@ export const AuthPage: React.FC = () => {
                   style={stagger(3)}
                   className={cn(ENTER, "space-y-4")}
                 >
-                  <Input
-                    label="Username"
-                    placeholder="e.g. ananyaroy"
-                    value={tUsername}
-                    onChange={(e) => setTUsername(e.target.value)}
-                    icon={<User className="w-4 h-4 text-[#14FFEC]/70" />}
-                    required
-                  />
-
-                  <div className="relative">
-                    <Input
-                      label="Password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={tPassword}
-                      onChange={(e) => setTPassword(e.target.value)}
-                      icon={<Lock className="w-4 h-4 text-[#14FFEC]/70" />}
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-8 text-zinc-400 hover:text-[#14FFEC] transition cursor-pointer"
-                      title={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">
+                      Username
+                    </label>
+                    <div className="relative flex items-center">
+                      <User className="absolute left-3.5 text-[#71717a] pointer-events-none w-4 h-4" />
+                      <input
+                        type="text"
+                        placeholder="e.g. ananyaroy"
+                        value={tUsername}
+                        onChange={(e) => setTUsername(e.target.value)}
+                        className="w-full rounded-xl border border-[#27272a] bg-[#18181b] px-3.5 py-2.5 pl-10 text-sm text-white placeholder:text-[#71717a] focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white transition"
+                        required
+                      />
+                    </div>
                   </div>
 
-                  <Button
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">
+                      Password
+                    </label>
+                    <div className="relative flex items-center">
+                      <Lock className="absolute left-3.5 text-[#71717a] pointer-events-none w-4 h-4" />
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={tPassword}
+                        onChange={(e) => setTPassword(e.target.value)}
+                        className="w-full rounded-xl border border-[#27272a] bg-[#18181b] px-3.5 py-2.5 pl-10 pr-10 text-sm text-white placeholder:text-[#71717a] focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white transition"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 text-[#71717a] hover:text-white transition cursor-pointer"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
                     type="submit"
-                    variant="primary"
-                    size="lg"
                     disabled={isLoading}
-                    className="w-full gap-2 text-sm font-bold shadow-lg shadow-[#0D7377]/40 mt-2"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white text-black font-semibold text-sm hover:bg-[#e4e4e7] active:bg-[#d4d4d8] transition cursor-pointer disabled:opacity-50 mt-2 shadow-xs"
                   >
                     {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-[#14FFEC]" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <ShieldCheck className="w-4 h-4" />
                     )}
-                    {isLoading ? "Authenticating..." : "Sign In with Credentials"}
-                  </Button>
+                    {isLoading ? "Signing in..." : "Continue"}
+                  </button>
                 </form>
               ) : (
                 <form
@@ -493,53 +491,75 @@ export const AuthPage: React.FC = () => {
                   style={stagger(3)}
                   className={cn(ENTER, "space-y-3.5")}
                 >
-                  <Input
-                    label="Full Name"
-                    placeholder="e.g. Dr. Ananya Roy"
-                    value={tName}
-                    onChange={(e) => setTName(e.target.value)}
-                    required
-                  />
-                  <Input
-                    label="Username"
-                    placeholder="e.g. ananyaroy"
-                    value={tUsername}
-                    onChange={(e) => setTUsername(e.target.value)}
-                    required
-                  />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <Input
-                      label="Password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={tPassword}
-                      onChange={(e) => setTPassword(e.target.value)}
-                      required
-                    />
-                    <Input
-                      label="Confirm Password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={tConfirmPass}
-                      onChange={(e) => setTConfirmPass(e.target.value)}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Dr. Ananya Roy"
+                      value={tName}
+                      onChange={(e) => setTName(e.target.value)}
+                      className="w-full rounded-xl border border-[#27272a] bg-[#18181b] px-3.5 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white transition"
                       required
                     />
                   </div>
 
-                  <Button
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. ananyaroy"
+                      value={tUsername}
+                      onChange={(e) => setTUsername(e.target.value)}
+                      className="w-full rounded-xl border border-[#27272a] bg-[#18181b] px-3.5 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white transition"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="••••••••"
+                        value={tPassword}
+                        onChange={(e) => setTPassword(e.target.value)}
+                        className="w-full rounded-xl border border-[#27272a] bg-[#18181b] px-3.5 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white transition"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">
+                        Confirm
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="••••••••"
+                        value={tConfirmPass}
+                        onChange={(e) => setTConfirmPass(e.target.value)}
+                        className="w-full rounded-xl border border-[#27272a] bg-[#18181b] px-3.5 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white transition"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <button
                     type="submit"
-                    variant="primary"
-                    size="lg"
                     disabled={isLoading}
-                    className="w-full gap-2 text-sm font-bold shadow-lg shadow-[#0D7377]/40 mt-2"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white text-black font-semibold text-sm hover:bg-[#e4e4e7] active:bg-[#d4d4d8] transition cursor-pointer disabled:opacity-50 mt-2 shadow-xs"
                   >
                     {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-[#14FFEC]" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <CheckCircle2 className="w-4 h-4" />
                     )}
-                    {isLoading ? "Creating Account..." : "Complete Registration"}
-                  </Button>
+                    {isLoading ? "Creating..." : "Create Account"}
+                  </button>
                 </form>
               )}
             </>
@@ -553,18 +573,18 @@ export const AuthPage: React.FC = () => {
                   style={stagger(1)}
                   className={cn(
                     ENTER,
-                    "font-serif text-3xl font-medium tracking-tight text-white sm:text-4xl"
+                    "font-serif text-4xl font-medium tracking-tight text-white sm:text-5xl"
                   )}
                 >
-                  {scanStep === "camera" ? "Biometric Face ID." : "Join as Student."}
+                  {scanStep === "camera" ? "Face ID scan." : "Student join."}
                 </h1>
                 <p
                   style={stagger(2)}
-                  className={cn(ENTER, "text-sm text-zinc-400")}
+                  className={cn(ENTER, "text-sm text-[#a1a1aa]")}
                 >
                   {scanStep === "camera"
-                    ? "Look into your camera. 68-point landmark matching will authenticate your profile."
-                    : "Your face embedding is ready. Enter your name to register your attendance pass."}
+                    ? "Position your face in front of the camera for instant identification."
+                    : "Enter your name to register your biometric attendance pass."}
                 </p>
               </div>
 
@@ -572,61 +592,69 @@ export const AuthPage: React.FC = () => {
                 {scanStep === "camera" ? (
                   <div className="space-y-4">
                     <CameraModal onCapture={handleFaceCaptured} />
-                    <div className="p-3 bg-[#323232] rounded-xl border border-[#0D7377]/60 text-center">
-                      <p className="text-xs text-zinc-300">
-                        First time student? The camera automatically extracts your 128D embedding and prompts for your name.
+                    <div className="p-3 bg-[#18181b] rounded-xl border border-[#27272a] text-center">
+                      <p className="text-xs text-[#a1a1aa]">
+                        Automatic face detector matches your 128D embedding in real-time.
                       </p>
                     </div>
                   </div>
                 ) : (
                   <form onSubmit={handleStudentRegisterSubmit} className="space-y-4">
-                    <div className="p-3 bg-[#323232] rounded-xl border border-[#0D7377] flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-[#0D7377] text-[#14FFEC] flex items-center justify-center">
+                    <div className="p-3 bg-[#18181b] rounded-xl border border-[#27272a] flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center font-bold">
                         <CheckCircle2 className="w-5 h-5" />
                       </div>
                       <div className="text-xs">
-                        <p className="font-bold text-white">Face Biometrics Processed</p>
-                        <p className="text-zinc-400 text-[11px]">128D spatial facial vector ready</p>
+                        <p className="font-semibold text-white">Face Biometrics Processed</p>
+                        <p className="text-[#a1a1aa] text-[11px]">Embedding vector ready</p>
                       </div>
                     </div>
 
-                    <Input
-                      label="Full Student Name"
-                      placeholder="e.g. Akash Kumar"
-                      value={studentName}
-                      onChange={(e) => setStudentName(e.target.value)}
-                      required
-                      autoFocus
-                    />
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">
+                        Full Student Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Akash Kumar"
+                        value={studentName}
+                        onChange={(e) => setStudentName(e.target.value)}
+                        className="w-full rounded-xl border border-[#27272a] bg-[#18181b] px-3.5 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white transition"
+                        required
+                        autoFocus
+                      />
+                    </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#14FFEC] uppercase tracking-wider mb-1.5">
-                        Optional: Voice Biometric Sample
+                      <label className="block text-xs font-medium text-[#a1a1aa] uppercase tracking-wider mb-1.5">
+                        Optional: Voice Sample
                       </label>
                       <AudioRecorder
                         onAudioRecorded={(blob) => setVoiceBlob(blob)}
-                        label="Record short audio (e.g. 'I am present') for voice scans"
+                        label="Record short audio (e.g. 'I am present') for voice attendance"
                       />
                     </div>
 
                     <div className="flex gap-2 pt-2">
-                      <Button
+                      <button
                         type="button"
-                        variant="secondary"
                         onClick={() => setScanStep("camera")}
-                        className="w-1/3"
+                        className="w-1/3 py-2.5 px-3 rounded-xl bg-[#18181b] border border-[#27272a] text-white text-xs font-semibold hover:bg-[#27272a] transition cursor-pointer"
                       >
-                        Retake Face
-                      </Button>
-                      <Button
+                        Retake
+                      </button>
+                      <button
                         type="submit"
-                        variant="primary"
                         disabled={isLoading}
-                        className="w-2/3 shadow-lg shadow-[#0D7377]/40 font-bold"
-                        icon={<CheckCircle2 className="w-4 h-4" />}
+                        className="w-2/3 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white text-black font-semibold text-sm hover:bg-[#e4e4e7] active:bg-[#d4d4d8] transition cursor-pointer disabled:opacity-50"
                       >
+                        {isLoading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="w-4 h-4" />
+                        )}
                         {isLoading ? "Saving..." : "Create Student Pass"}
-                      </Button>
+                      </button>
                     </div>
                   </form>
                 )}
@@ -634,24 +662,24 @@ export const AuthPage: React.FC = () => {
             </>
           )}
 
-          {/* Footer Notice */}
+          {/* Hirael Template Footer Notice */}
           <p
             style={stagger(4)}
-            className={cn(ENTER, "text-xs text-zinc-400 pt-2 text-center sm:text-left")}
+            className={cn(ENTER, "text-xs text-[#a1a1aa]")}
           >
-            Protected by enterprise encryption. By signing in, you agree to the{" "}
+            By continuing, you agree to the{" "}
             <a
               href="#"
-              className="text-[#14FFEC] underline-offset-4 hover:underline font-medium"
+              className="text-white underline-offset-4 hover:underline"
             >
               terms
             </a>{" "}
             and{" "}
             <a
               href="#"
-              className="text-[#14FFEC] underline-offset-4 hover:underline font-medium"
+              className="text-white underline-offset-4 hover:underline"
             >
-              biometric privacy policy
+              privacy policy
             </a>
             .
           </p>
