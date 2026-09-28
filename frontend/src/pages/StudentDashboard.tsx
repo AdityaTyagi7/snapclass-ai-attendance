@@ -1,21 +1,31 @@
-import React, { useEffect, useState } from 'react';
+"use client";
+
+import React, { useEffect, useState, useMemo } from 'react';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  BarChart3,
+  BookOpen,
+  Calendar,
+  CheckCircle2,
+  GraduationCap,
+  Plus,
+  Trash2,
+  UserCheck,
+  UserPlus,
+  XCircle,
+} from 'lucide-react';
+
 import { useAuth } from '../context/AuthContext';
 import { studentApi } from '../api/studentApi';
 import { EnrolledSubjectNode, StudentAttendanceLog } from '../types';
 import { AppShell } from '../components/layout/AppShell';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/Card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
+import { Progress } from '../components/ui/Progress';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useToast } from '../components/ui/Toast';
 import { EnrollSubjectModal } from '../components/widgets/EnrollSubjectModal';
-import {
-  GraduationCap,
-  UserPlus,
-  Trash2,
-  CheckCircle,
-  XCircle,
-} from 'lucide-react';
 
 export const StudentDashboard: React.FC = () => {
   const { student } = useAuth();
@@ -62,193 +72,349 @@ export const StudentDashboard: React.FC = () => {
   };
 
   const getTitle = () => {
-    return activeTab === 'student_subjects' ? 'My Enrolled Courses' : 'My Attendance Logs';
+    return activeTab === 'student_subjects' ? 'My Courses' : 'My Attendance Logs';
   };
+
+  // Aggregate stats matching template STATS
+  const totalAttended = useMemo(() => {
+    return Object.values(statsMap).reduce((acc, s) => acc + (s.attended || 0), 0);
+  }, [statsMap]);
+
+  const totalClasses = useMemo(() => {
+    return Object.values(statsMap).reduce((acc, s) => acc + (s.total || 0), 0);
+  }, [statsMap]);
+
+  const missedClasses = Math.max(0, totalClasses - totalAttended);
+
+  const overallRate = useMemo(() => {
+    return totalClasses > 0 ? Math.round((totalAttended / totalClasses) * 100) : 0;
+  }, [totalClasses, totalAttended]);
+
+  // Dynamic weekly chart data matching template
+  const chartData = useMemo(() => {
+    if (logs.length === 0) {
+      return [
+        { week: 'W1', attended: 4, total: 5 },
+        { week: 'W2', attended: 5, total: 5 },
+        { week: 'W3', attended: 3, total: 4 },
+        { week: 'W4', attended: 4, total: 4 },
+        { week: 'W5', attended: 5, total: 5 },
+        { week: 'W6', attended: 5, total: 5 },
+      ];
+    }
+    return logs.slice(-8).map((log, i) => ({
+      week: `Log ${i + 1}`,
+      attended: log.is_present ? 1 : 0,
+      total: 1,
+    }));
+  }, [logs]);
+
+  const stats = [
+    {
+      label: 'Enrolled courses',
+      value: subjects.length.toString(),
+      hint: `${subjects.length} active subject enrollment(s)`,
+      icon: GraduationCap,
+    },
+    {
+      label: 'Classes attended',
+      value: totalAttended.toString(),
+      hint: 'Verified present sessions',
+      icon: UserCheck,
+    },
+    {
+      label: 'Missed classes',
+      value: missedClasses.toString(),
+      hint: `${missedClasses} absent mark(s)`,
+      icon: Calendar,
+    },
+    {
+      label: 'Overall rate',
+      value: `${overallRate}%`,
+      hint: `${totalAttended} of ${totalClasses} total classes`,
+      icon: BarChart3,
+    },
+  ];
 
   return (
     <AppShell activeTab={activeTab} setActiveTab={setActiveTab} pageTitle={getTitle()}>
-      {/* TAB 1: ENROLLED SUBJECTS */}
-      {activeTab === 'student_subjects' && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-[#14FFEC]" />
-                Enrolled Courses
-              </h3>
-              <p className="text-xs text-zinc-400 font-medium mt-0.5">Track your attendance progress and enrolled subjects</p>
-            </div>
-            <Button
-              variant="primary"
-              onClick={() => setIsEnrollModalOpen(true)}
-              icon={<UserPlus className="w-4 h-4" />}
-            >
-              Enroll in Subject
-            </Button>
-          </div>
+      <div className="flex flex-col gap-6">
 
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Skeleton className="h-44 w-full" />
-              <Skeleton className="h-44 w-full" />
-            </div>
-          ) : subjects.length === 0 ? (
-            <Card className="text-center py-12 border-[#0D7377]/60">
+        {/* TOP STATS CARDS MATCHING TEMPLATE */}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {stats.map((stat) => (
+            <Card key={stat.label}>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-[#a1a1aa]">
+                  {stat.label}
+                </CardTitle>
+                <stat.icon aria-hidden className="size-4 text-[#a1a1aa]" />
+              </CardHeader>
               <CardContent>
-                <div className="w-12 h-12 mx-auto rounded-xl bg-[#0D7377] text-[#14FFEC] border border-[#14FFEC]/40 flex items-center justify-center mb-3 shadow-md shadow-[#0D7377]/30">
-                  <GraduationCap className="w-6 h-6" />
-                </div>
-                <h4 className="text-sm font-bold text-white">No Enrolled Courses Found</h4>
-                <p className="text-xs text-zinc-400 font-medium mt-1 max-w-sm mx-auto">
-                  Ask your instructor for a course join code and enroll to track your attendance.
+                <p className="text-2xl font-bold tabular-nums text-white">
+                  {stat.value}
                 </p>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => setIsEnrollModalOpen(true)}
-                  icon={<UserPlus className="w-4 h-4" />}
-                >
-                  Enroll Now
-                </Button>
+                <p className="text-xs text-[#a1a1aa] mt-1">{stat.hint}</p>
               </CardContent>
             </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {subjects.map((node) => {
-                const sub = node.subjects;
-                const stats = statsMap[sub.subject_id] || { total: 0, attended: 0 };
-                const rate = stats.total > 0 ? Math.round((stats.attended / stats.total) * 100) : 0;
-
-                return (
-                  <Card key={node.id} className="flex flex-col justify-between border-[#0D7377]/60 hover:border-[#14FFEC] transition-all">
-                    <CardHeader className="pb-3 border-[#212121]">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <CardTitle className="font-bold text-white text-base">{sub.name}</CardTitle>
-                          <CardDescription className="text-zinc-400">Section {sub.section || 'A'}</CardDescription>
-                        </div>
-                        <Badge variant="success" className="font-mono">
-                          {sub.subject_code}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-
-                    <CardContent className="py-3 space-y-3">
-                      <div className="grid grid-cols-2 gap-3 text-xs">
-                        <div className="p-3 bg-[#212121] rounded-xl border border-[#0D7377]/40">
-                          <p className="text-zinc-400 font-bold uppercase tracking-wider text-[10px]">Total Classes</p>
-                          <p className="text-sm font-bold text-[#14FFEC]">{stats.total}</p>
-                        </div>
-
-                        <div className="p-3 bg-[#212121] rounded-xl border border-[#0D7377]/40">
-                          <p className="text-zinc-400 font-bold uppercase tracking-wider text-[10px]">Attended</p>
-                          <p className="text-sm font-bold text-[#14FFEC]">{stats.attended}</p>
-                        </div>
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div>
-                        <div className="flex justify-between text-xs font-semibold mb-1">
-                          <span className="text-zinc-400">Attendance Rate</span>
-                          <span className="text-[#14FFEC] font-bold">{rate}%</span>
-                        </div>
-                        <div className="w-full h-2 bg-[#212121] rounded-full overflow-hidden border border-[#0D7377]/40">
-                          <div
-                            className="h-full bg-linear-to-r from-[#0D7377] to-[#14FFEC] transition-all duration-300 shadow-sm shadow-[#14FFEC]/40"
-                            style={{ width: `${rate}%` }}
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-
-                    <CardFooter className="bg-[#212121]/60 border-[#212121]">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full text-zinc-400 hover:text-rose-400 hover:bg-rose-950/40 font-semibold"
-                        onClick={() => handleUnenroll(sub.subject_id, sub.name)}
-                        icon={<Trash2 className="w-3.5 h-3.5" />}
-                      >
-                        Unenroll from Subject
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
+          ))}
         </div>
-      )}
 
-      {/* TAB 2: ATTENDANCE LOGS */}
-      {activeTab === 'student_attendance' && (
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-xl font-bold text-white">Your Attendance History</h3>
-            <p className="text-xs text-zinc-400 font-medium">Detailed logs of all attendance scans recorded for your profile</p>
-          </div>
+        {/* TAB NAVIGATION PILLS */}
+        <div className="flex items-center gap-1.5 p-1 bg-[#121215] rounded-xl border border-[#27272a] w-fit">
+          <button
+            onClick={() => setActiveTab('student_subjects')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+              activeTab === 'student_subjects'
+                ? 'bg-white text-black font-semibold shadow-xs'
+                : 'text-[#a1a1aa] hover:text-white'
+            }`}
+          >
+            <GraduationCap className="w-3.5 h-3.5" />
+            <span>My Courses</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('student_attendance')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+              activeTab === 'student_attendance'
+                ? 'bg-white text-black font-semibold shadow-xs'
+                : 'text-[#a1a1aa] hover:text-white'
+            }`}
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            <span>My Attendance History</span>
+          </button>
+        </div>
 
-          <Card className="border-[#0D7377]/60">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-[#212121] text-[#14FFEC] text-xs uppercase tracking-wider font-bold border-b border-[#0D7377]/40">
-                    <th className="py-3.5 px-4">Date & Time</th>
-                    <th className="py-3.5 px-4">Subject Name</th>
-                    <th className="py-3.5 px-4">Course Code</th>
-                    <th className="py-3.5 px-4">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#212121] text-sm text-zinc-200">
-                  {isLoading ? (
-                    <tr>
-                      <td colSpan={4} className="p-4 text-center">
-                        <Skeleton className="h-6 w-full" />
-                      </td>
-                    </tr>
-                  ) : logs.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-12 text-center text-zinc-400 text-xs font-semibold">
-                        No attendance logs recorded yet
-                      </td>
-                    </tr>
-                  ) : (
-                    logs.map((log) => (
-                      <tr key={log.id} className="hover:bg-[#212121]/60 transition">
-                        <td className="py-3.5 px-4 font-mono text-xs text-zinc-400 font-medium">
-                          {log.timestamp ? new Date(log.timestamp).toLocaleString() : 'N/A'}
-                        </td>
-                        <td className="py-3.5 px-4 font-bold text-white">
-                          {log.subjects?.name || 'Unknown Subject'}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <Badge variant="success" className="font-mono">
-                            {log.subjects?.subject_code || 'N/A'}
+        {/* TAB 1: ENROLLED COURSES */}
+        {activeTab === 'student_subjects' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-white tracking-tight">Enrolled Courses</h2>
+                <p className="text-xs text-[#a1a1aa] mt-0.5">Track your attendance progress and enrolled subjects</p>
+              </div>
+              <Button
+                variant="default"
+                onClick={() => setIsEnrollModalOpen(true)}
+                icon={<UserPlus className="w-4 h-4" />}
+              >
+                Enroll in Subject
+              </Button>
+            </div>
+
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Skeleton className="h-44 w-full" />
+                <Skeleton className="h-44 w-full" />
+              </div>
+            ) : subjects.length === 0 ? (
+              <Card className="text-center py-12">
+                <CardContent className="flex flex-col items-center">
+                  <div className="w-12 h-12 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-center mb-3 text-white">
+                    <GraduationCap className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-white">No Enrolled Courses Found</h3>
+                  <p className="text-xs text-[#a1a1aa] mt-1 max-w-sm">
+                    Ask your instructor for a course join code and enroll to track your attendance.
+                  </p>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() => setIsEnrollModalOpen(true)}
+                    icon={<UserPlus className="w-4 h-4" />}
+                  >
+                    Enroll Now
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {subjects.map((node) => {
+                  const sub = node.subjects;
+                  const statsObj = statsMap[sub.subject_id] || { total: 0, attended: 0 };
+                  const rate = statsObj.total > 0 ? Math.round((statsObj.attended / statsObj.total) * 100) : 0;
+
+                  return (
+                    <Card key={node.id} className="flex flex-col justify-between hover:border-[#3f3f46] transition-colors">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <CardTitle className="text-base font-semibold">{sub.name}</CardTitle>
+                            <CardDescription>Section {sub.section || 'A'}</CardDescription>
+                          </div>
+                          <Badge variant="secondary" className="font-mono">
+                            {sub.subject_code}
                           </Badge>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          {log.is_present ? (
-                            <Badge variant="success">
-                              <CheckCircle className="w-3.5 h-3.5 text-[#14FFEC]" /> Present
-                            </Badge>
-                          ) : (
-                            <Badge variant="error">
-                              <XCircle className="w-3.5 h-3.5 text-rose-400" /> Absent
-                            </Badge>
-                          )}
+                        </div>
+                      </CardHeader>
+
+                      <CardContent className="py-2 space-y-3">
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="p-2.5 bg-[#18181b] rounded-lg border border-[#27272a]">
+                            <p className="text-[#a1a1aa] uppercase tracking-wider text-[10px] font-medium">Total Classes</p>
+                            <p className="text-sm font-semibold text-white mt-0.5">{statsObj.total}</p>
+                          </div>
+                          <div className="p-2.5 bg-[#18181b] rounded-lg border border-[#27272a]">
+                            <p className="text-[#a1a1aa] uppercase tracking-wider text-[10px] font-medium">Attended</p>
+                            <p className="text-sm font-semibold text-white mt-0.5">{statsObj.attended}</p>
+                          </div>
+                        </div>
+
+                        {/* Progress Bar matching template */}
+                        <div className="space-y-1.5 pt-1">
+                          <div className="flex justify-between text-xs text-[#a1a1aa]">
+                            <span>Attendance Rate</span>
+                            <span className="font-medium text-white">{rate}%</span>
+                          </div>
+                          <Progress value={rate} />
+                        </div>
+                      </CardContent>
+
+                      <CardFooter className="pt-3">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-xs text-[#a1a1aa] hover:text-rose-400 hover:bg-rose-950/30 font-medium"
+                          onClick={() => handleUnenroll(sub.subject_id, sub.name)}
+                          icon={<Trash2 className="w-3.5 h-3.5" />}
+                        >
+                          Unenroll
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 2: ATTENDANCE HISTORY (Matches Template Area Chart & Table) */}
+        {activeTab === 'student_attendance' && (
+          <div className="space-y-6">
+            {/* AREA CHART MATCHING TEMPLATE */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Attendance Consistency</CardTitle>
+                <CardDescription>
+                  Your attendance presence trend across registered sessions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData} margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="studentCompleted" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#ffffff" stopOpacity={0.25} />
+                          <stop offset="100%" stopColor="#ffffff" stopOpacity={0.02} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid vertical={false} stroke="#27272a" strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="week"
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fill: '#a1a1aa', fontSize: 12 }}
+                      />
+                      <YAxis
+                        tickLine={false}
+                        axisLine={false}
+                        width={30}
+                        tick={{ fill: '#a1a1aa', fontSize: 12 }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#18181b',
+                          borderColor: '#27272a',
+                          borderRadius: '8px',
+                          color: '#ffffff',
+                          fontSize: '12px',
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="attended"
+                        stroke="#ffffff"
+                        fill="url(#studentCompleted)"
+                        strokeWidth={2}
+                        name="Presence"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* RECENT ACTIVITY TABLE MATCHING TEMPLATE */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Attendance Log History</CardTitle>
+                <CardDescription>Detailed logs of all scans recorded for your student profile</CardDescription>
+              </CardHeader>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#27272a] bg-[#18181b]/50 text-xs font-semibold text-[#a1a1aa] uppercase tracking-wider">
+                      <th className="py-3 px-5">Timestamp</th>
+                      <th className="py-3 px-5">Subject</th>
+                      <th className="py-3 px-5">Course Code</th>
+                      <th className="py-3 px-5 text-right">Verification Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#27272a] text-sm text-[#fafafa]">
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={4} className="p-4 text-center">
+                          <Skeleton className="h-6 w-full" />
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        </div>
-      )}
+                    ) : logs.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="py-12 text-center text-xs text-[#a1a1aa]">
+                          No attendance records found yet
+                        </td>
+                      </tr>
+                    ) : (
+                      logs.map((log) => (
+                        <tr key={log.id} className="hover:bg-[#18181b]/60 transition-colors">
+                          <td className="py-3 px-5 font-mono text-xs text-[#a1a1aa]">
+                            {log.timestamp ? new Date(log.timestamp).toLocaleString() : 'N/A'}
+                          </td>
+                          <td className="py-3 px-5 font-medium text-white">
+                            {log.subjects?.name || 'Unknown Subject'}
+                          </td>
+                          <td className="py-3 px-5">
+                            <Badge variant="secondary" className="font-mono">
+                              {log.subjects?.subject_code || 'N/A'}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-5 text-right">
+                            {log.is_present ? (
+                              <Badge variant="default" className="font-semibold gap-1">
+                                <CheckCircle2 className="w-3 h-3 text-black" /> Present
+                              </Badge>
+                            ) : (
+                              <Badge variant="error" className="gap-1">
+                                <XCircle className="w-3 h-3 text-rose-400" /> Absent
+                              </Badge>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </div>
+        )}
 
-      {/* Modal */}
+      </div>
+
+      {/* Enroll Modal */}
       <EnrollSubjectModal
         isOpen={isEnrollModalOpen}
         onClose={() => setIsEnrollModalOpen(false)}
@@ -257,3 +423,5 @@ export const StudentDashboard: React.FC = () => {
     </AppShell>
   );
 };
+
+export default StudentDashboard;

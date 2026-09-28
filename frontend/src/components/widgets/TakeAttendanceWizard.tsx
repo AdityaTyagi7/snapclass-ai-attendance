@@ -155,16 +155,16 @@ export const TakeAttendanceWizard: React.FC<TakeAttendanceWizardProps> = ({
   const selectedSubject = subjects.find((s) => s.subject_id === selectedSubjectId);
 
   return (
-    <Card className="max-w-4xl mx-auto border-[#0D7377]/60 shadow-2xl">
-      <CardHeader className="border-[#212121]">
+    <Card className="max-w-4xl mx-auto">
+      <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2 text-white font-bold text-lg">
-              <Cpu className="w-5 h-5 text-[#14FFEC]" />
+            <CardTitle className="flex items-center gap-2 text-base font-semibold">
+              <Cpu className="w-5 h-5 text-white" />
               Take AI Attendance Scan
             </CardTitle>
-            <CardDescription className="text-zinc-400">
-              Scan classroom photos or audio recordings to detect present students
+            <CardDescription>
+              Scan classroom photos or audio recordings to automatically detect present students
             </CardDescription>
           </div>
           {step === 3 && (
@@ -175,36 +175,36 @@ export const TakeAttendanceWizard: React.FC<TakeAttendanceWizardProps> = ({
         </div>
 
         {/* Stepper Progress Bar */}
-        <div className="flex items-center justify-between mt-6 pt-4 border-t border-[#212121]">
-          <div className={`flex items-center gap-2 text-xs font-bold ${step >= 1 ? 'text-[#14FFEC]' : 'text-zinc-500'}`}>
-            <span className={`w-6 h-6 rounded-md flex items-center justify-center font-extrabold ${step >= 1 ? 'bg-[#0D7377] text-[#14FFEC] border border-[#14FFEC]/40 shadow-xs shadow-[#0D7377]' : 'bg-[#212121] text-zinc-500'}`}>1</span>
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-[#27272a]">
+          <div className={`flex items-center gap-2 text-xs font-medium ${step >= 1 ? 'text-white font-semibold' : 'text-[#a1a1aa]'}`}>
+            <span className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-xs ${step >= 1 ? 'bg-white text-black' : 'bg-[#18181b] text-[#a1a1aa] border border-[#27272a]'}`}>1</span>
             <span>Setup & Upload</span>
           </div>
-          <ArrowRight className="w-4 h-4 text-[#0D7377]" />
-          <div className={`flex items-center gap-2 text-xs font-bold ${step >= 2 ? 'text-[#14FFEC]' : 'text-zinc-500'}`}>
-            <span className={`w-6 h-6 rounded-md flex items-center justify-center font-extrabold ${step >= 2 ? 'bg-[#0D7377] text-[#14FFEC] border border-[#14FFEC]/40 shadow-xs shadow-[#0D7377]' : 'bg-[#212121] text-zinc-500'}`}>2</span>
+          <ArrowRight className="w-4 h-4 text-[#3f3f46]" />
+          <div className={`flex items-center gap-2 text-xs font-medium ${step >= 2 ? 'text-white font-semibold' : 'text-[#a1a1aa]'}`}>
+            <span className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-xs ${step >= 2 ? 'bg-white text-black' : 'bg-[#18181b] text-[#a1a1aa] border border-[#27272a]'}`}>2</span>
             <span>AI Processing</span>
           </div>
-          <ArrowRight className="w-4 h-4 text-[#0D7377]" />
-          <div className={`flex items-center gap-2 text-xs font-bold ${step >= 3 ? 'text-[#14FFEC]' : 'text-zinc-500'}`}>
-            <span className={`w-6 h-6 rounded-md flex items-center justify-center font-extrabold ${step >= 3 ? 'bg-[#0D7377] text-[#14FFEC] border border-[#14FFEC]/40 shadow-xs shadow-[#0D7377]' : 'bg-[#212121] text-zinc-500'}`}>3</span>
+          <ArrowRight className="w-4 h-4 text-[#3f3f46]" />
+          <div className={`flex items-center gap-2 text-xs font-medium ${step >= 3 ? 'text-white font-semibold' : 'text-[#a1a1aa]'}`}>
+            <span className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-xs ${step >= 3 ? 'bg-white text-black' : 'bg-[#18181b] text-[#a1a1aa] border border-[#27272a]'}`}>3</span>
             <span>Review & Save</span>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="pt-6">
+      <CardContent className="pt-2">
         {/* STEP 1: Setup & Upload */}
         {step === 1 && (
           <div className="space-y-6">
             {/* Subject Selector & Mode Switch */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-[#14FFEC] uppercase tracking-wider mb-1.5">
-                  Select Course Subject
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">
+                  Course Subject
                 </label>
                 <select
-                  className="w-full rounded-xl border border-[#0D7377]/60 bg-[#212121] px-3.5 py-2.5 text-sm text-white font-medium focus:outline-none focus:ring-2 focus:ring-[#14FFEC]/30 focus:border-[#14FFEC] cursor-pointer"
+                  className="w-full rounded-xl border border-[#27272a] bg-[#18181b] px-3.5 py-2.5 text-sm text-white font-medium focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white transition cursor-pointer"
                   value={selectedSubjectId}
                   onChange={(e) => setSelectedSubjectId(Number(e.target.value))}
                 >
@@ -216,35 +216,35 @@ export const TakeAttendanceWizard: React.FC<TakeAttendanceWizardProps> = ({
                 </select>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-[#14FFEC] uppercase tracking-wider mb-1.5">
-                  Scan Method
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">
+                  Detection Method
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setMode('photos')}
-                    className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-medium transition cursor-pointer ${
                       mode === 'photos'
-                        ? 'bg-[#0D7377] text-[#14FFEC] border-[#14FFEC]/50 shadow-md shadow-[#0D7377]/40'
-                        : 'bg-[#212121] text-zinc-400 border-[#0D7377]/40 hover:text-white hover:border-[#0D7377]'
+                        ? 'bg-white text-black font-semibold shadow-xs'
+                        : 'bg-[#18181b] text-[#a1a1aa] border-[#27272a] hover:text-white'
                     }`}
                   >
                     <Camera className="w-4 h-4" />
-                    Face Photo Scan
+                    Face Photo
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setMode('voice')}
-                    className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-medium transition cursor-pointer ${
                       mode === 'voice'
-                        ? 'bg-[#0D7377] text-[#14FFEC] border-[#14FFEC]/50 shadow-md shadow-[#0D7377]/40'
-                        : 'bg-[#212121] text-zinc-400 border-[#0D7377]/40 hover:text-white hover:border-[#0D7377]'
+                        ? 'bg-white text-black font-semibold shadow-xs'
+                        : 'bg-[#18181b] text-[#a1a1aa] border-[#27272a] hover:text-white'
                     }`}
                   >
                     <Mic className="w-4 h-4" />
-                    Voice Audio Scan
+                    Voice Audio
                   </button>
                 </div>
               </div>
@@ -253,7 +253,7 @@ export const TakeAttendanceWizard: React.FC<TakeAttendanceWizardProps> = ({
             {/* Mode A: Photo Uploader */}
             {mode === 'photos' && (
               <div className="space-y-4">
-                <div className="p-8 border-2 border-dashed border-[#0D7377] rounded-2xl bg-[#212121] text-center hover:bg-[#212121]/80 hover:border-[#14FFEC] transition relative">
+                <div className="p-8 border-2 border-dashed border-[#27272a] rounded-xl bg-[#18181b]/30 text-center hover:bg-[#18181b]/60 transition relative">
                   <input
                     type="file"
                     accept="image/*"
@@ -261,28 +261,28 @@ export const TakeAttendanceWizard: React.FC<TakeAttendanceWizardProps> = ({
                     onChange={handlePhotoUpload}
                     className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                   />
-                  <div className="w-12 h-12 mx-auto rounded-xl bg-[#0D7377] text-[#14FFEC] border border-[#14FFEC]/40 flex items-center justify-center mb-3 shadow-md shadow-[#0D7377]/30">
-                    <Upload className="w-6 h-6" />
+                  <div className="w-10 h-10 mx-auto rounded-xl bg-[#18181b] border border-[#27272a] text-white flex items-center justify-center mb-2">
+                    <Upload className="w-5 h-5" />
                   </div>
-                  <h4 className="text-sm font-bold text-white">Upload Classroom Photos</h4>
-                  <p className="text-xs text-zinc-400 font-medium mt-1">
-                    Drag and drop or click to upload photos of students in class
+                  <h4 className="text-sm font-semibold text-white">Upload Classroom Photos</h4>
+                  <p className="text-xs text-[#a1a1aa] mt-1">
+                    Drag and drop or click to select classroom photos
                   </p>
                 </div>
 
                 {photoPreviews.length > 0 && (
                   <div>
-                    <h5 className="text-xs font-bold text-[#14FFEC] uppercase tracking-wider mb-2">
-                      Uploaded Photos ({photoPreviews.length})
+                    <h5 className="text-xs font-medium text-[#a1a1aa] uppercase tracking-wider mb-2">
+                      Selected Photos ({photoPreviews.length})
                     </h5>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {photoPreviews.map((url, idx) => (
-                        <div key={idx} className="relative group rounded-xl overflow-hidden border border-[#0D7377] aspect-4/3 shadow-md shadow-black/40">
+                        <div key={idx} className="relative group rounded-xl overflow-hidden border border-[#27272a] aspect-4/3">
                           <img src={url} alt={`Class photo ${idx + 1}`} className="w-full h-full object-cover" />
                           <button
                             type="button"
                             onClick={() => removePhoto(idx)}
-                            className="absolute top-1.5 right-1.5 p-1 bg-rose-950 text-rose-300 border border-rose-700 rounded-md opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                            className="absolute top-1.5 right-1.5 p-1 bg-black/80 text-white rounded-md opacity-0 group-hover:opacity-100 transition cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -295,7 +295,7 @@ export const TakeAttendanceWizard: React.FC<TakeAttendanceWizardProps> = ({
                 <div className="flex justify-end pt-2">
                   <Button
                     onClick={runFaceAnalysis}
-                    variant="primary"
+                    variant="default"
                     disabled={photos.length === 0}
                     icon={<Cpu className="w-4 h-4" />}
                   >
@@ -310,13 +310,13 @@ export const TakeAttendanceWizard: React.FC<TakeAttendanceWizardProps> = ({
               <div className="space-y-4">
                 <AudioRecorder
                   onAudioRecorded={(blob) => setAudioFile(blob)}
-                  label="Record classroom audio of students saying 'Present' or 'I am present'"
+                  label="Record classroom audio of students answering roll call"
                 />
 
                 <div className="flex justify-end pt-2">
                   <Button
                     onClick={runVoiceAnalysis}
-                    variant="primary"
+                    variant="default"
                     disabled={!audioFile}
                     icon={<Cpu className="w-4 h-4" />}
                   >
@@ -331,12 +331,12 @@ export const TakeAttendanceWizard: React.FC<TakeAttendanceWizardProps> = ({
         {/* STEP 2: Loading State */}
         {step === 2 && (
           <div className="py-16 text-center space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#0D7377] text-[#14FFEC] border border-[#14FFEC]/50 flex items-center justify-center animate-pulse shadow-lg shadow-[#0D7377]/50">
-              <Cpu className="w-8 h-8" />
+            <div className="w-14 h-14 mx-auto rounded-xl bg-white text-black flex items-center justify-center animate-pulse">
+              <Cpu className="w-7 h-7" />
             </div>
-            <h3 className="text-lg font-bold text-white">Scanning Media Embeddings...</h3>
-            <p className="text-xs text-zinc-400 font-medium max-w-sm mx-auto">
-              Running {mode === 'photos' ? 'dlib landmark pose predictor & SVM classifier' : 'Resemblyzer PyTorch voice encoder'} to identify present students...
+            <h3 className="text-base font-semibold text-white">Extracting Feature Vectors...</h3>
+            <p className="text-xs text-[#a1a1aa] max-w-sm mx-auto">
+              Running {mode === 'photos' ? 'dlib spatial landmark pose model' : 'Resemblyzer PyTorch voice encoder'} to identify present students...
             </p>
           </div>
         )}
@@ -344,28 +344,28 @@ export const TakeAttendanceWizard: React.FC<TakeAttendanceWizardProps> = ({
         {/* STEP 3: Review Results Table */}
         {step === 3 && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between p-4 bg-[#212121] rounded-xl border border-[#0D7377]/60">
+            <div className="flex items-center justify-between p-3.5 bg-[#18181b] rounded-xl border border-[#27272a]">
               <div>
-                <span className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Subject:</span>
-                <span className="text-sm font-bold text-[#14FFEC] ml-2">
+                <span className="text-xs text-[#a1a1aa] uppercase tracking-wider">Subject:</span>
+                <span className="text-sm font-semibold text-white ml-2">
                   {selectedSubject?.name} ({selectedSubject?.subject_code})
                 </span>
               </div>
               <div className="flex gap-2">
-                <Badge variant="success">
+                <Badge variant="default">
                   Present: {results.filter((r) => r.is_present).length}
                 </Badge>
-                <Badge variant="error">
+                <Badge variant="secondary">
                   Absent: {results.filter((r) => !r.is_present).length}
                 </Badge>
               </div>
             </div>
 
             {/* Verification Table */}
-            <div className="border border-[#0D7377]/60 rounded-xl overflow-hidden shadow-xl">
+            <div className="border border-[#27272a] rounded-xl overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#212121] text-[#14FFEC] text-xs uppercase tracking-wider font-bold border-b border-[#0D7377]/40">
+                  <tr className="bg-[#18181b]/50 text-[#a1a1aa] text-xs uppercase tracking-wider font-semibold border-b border-[#27272a]">
                     <th className="py-3 px-4">Student ID</th>
                     <th className="py-3 px-4">Student Name</th>
                     <th className="py-3 px-4">Detection Source</th>
@@ -373,26 +373,26 @@ export const TakeAttendanceWizard: React.FC<TakeAttendanceWizardProps> = ({
                     <th className="py-3 px-4 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#212121] text-sm text-zinc-200">
+                <tbody className="divide-y divide-[#27272a] text-sm text-[#fafafa]">
                   {results.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-8 text-center text-zinc-400 text-xs font-semibold">
+                      <td colSpan={5} className="py-8 text-center text-[#a1a1aa] text-xs">
                         No enrolled students found in this subject
                       </td>
                     </tr>
                   ) : (
                     results.map((r) => (
-                      <tr key={r.student_id} className="hover:bg-[#212121]/60 transition">
-                        <td className="py-3 px-4 font-mono text-xs font-bold text-zinc-400">#{r.student_id}</td>
-                        <td className="py-3 px-4 font-bold text-white">{r.name}</td>
-                        <td className="py-3 px-4 text-xs font-medium text-zinc-400">{r.source || '-'}</td>
+                      <tr key={r.student_id} className="hover:bg-[#18181b]/60 transition-colors">
+                        <td className="py-3 px-4 font-mono text-xs text-[#a1a1aa]">#{r.student_id}</td>
+                        <td className="py-3 px-4 font-medium text-white">{r.name}</td>
+                        <td className="py-3 px-4 text-xs text-[#a1a1aa]">{r.source || '-'}</td>
                         <td className="py-3 px-4">
                           {r.is_present ? (
-                            <Badge variant="success">
-                              <CheckCircle2 className="w-3 h-3 text-[#14FFEC]" /> Present
+                            <Badge variant="default" className="gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-black" /> Present
                             </Badge>
                           ) : (
-                            <Badge variant="error">
+                            <Badge variant="error" className="gap-1">
                               <XCircle className="w-3 h-3 text-rose-400" /> Absent
                             </Badge>
                           )}
@@ -401,7 +401,7 @@ export const TakeAttendanceWizard: React.FC<TakeAttendanceWizardProps> = ({
                           <button
                             type="button"
                             onClick={() => toggleStudentStatus(r.student_id)}
-                            className="text-xs font-semibold text-[#14FFEC] hover:underline transition cursor-pointer"
+                            className="text-xs font-semibold text-white hover:underline transition cursor-pointer"
                           >
                             Mark as {r.is_present ? 'Absent' : 'Present'}
                           </button>
@@ -418,7 +418,7 @@ export const TakeAttendanceWizard: React.FC<TakeAttendanceWizardProps> = ({
                 Discard
               </Button>
               <Button
-                variant="primary"
+                variant="default"
                 onClick={handleConfirmAttendance}
                 isLoading={isLoading}
                 icon={<Save className="w-4 h-4" />}

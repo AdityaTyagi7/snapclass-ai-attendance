@@ -4,28 +4,28 @@ import { twMerge } from 'tailwind-merge';
 
 export const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => {
   return (
-    <div className={twMerge(clsx('bg-[#323232] text-white rounded-2xl border border-[#0D7377]/40 shadow-lg shadow-black/40 hover:border-[#14FFEC]/50 transition-all duration-200 overflow-hidden', className))}>
+    <div className={twMerge(clsx('rounded-xl border border-[#27272a] bg-[#121215] text-[#fafafa] shadow-xs overflow-hidden', className))}>
       {children}
     </div>
   );
 };
 
 export const CardHeader: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => {
-  return <div className={twMerge(clsx('p-5 border-b border-[#212121]', className))}>{children}</div>;
+  return <div className={twMerge(clsx('flex flex-col space-y-1.5 p-5 sm:p-6', className))}>{children}</div>;
 };
 
 export const CardTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => {
-  return <h3 className={twMerge(clsx('text-base font-bold text-white tracking-tight', className))}>{children}</h3>;
+  return <h3 className={twMerge(clsx('font-semibold leading-none tracking-tight text-white text-base', className))}>{children}</h3>;
 };
 
 export const CardDescription: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => {
-  return <p className={twMerge(clsx('text-xs text-zinc-400 mt-1', className))}>{children}</p>;
+  return <p className={twMerge(clsx('text-xs text-[#a1a1aa]', className))}>{children}</p>;
 };
 
 export const CardContent: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => {
-  return <div className={twMerge(clsx('p-5 text-zinc-200', className))}>{children}</div>;
+  return <div className={twMerge(clsx('p-5 sm:p-6 pt-0', className))}>{children}</div>;
 };
 
 export const CardFooter: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => {
-  return <div className={twMerge(clsx('p-4 bg-[#212121]/50 border-t border-[#212121] flex items-center justify-between', className))}>{children}</div>;
+  return <div className={twMerge(clsx('flex items-center p-5 sm:p-6 pt-0 border-t border-[#27272a]/50', className))}>{children}</div>;
 };

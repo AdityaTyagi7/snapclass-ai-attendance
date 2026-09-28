@@ -18,7 +18,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#212121] text-white font-sans antialiased selection:bg-[#0D7377] selection:text-[#14FFEC]">
+    <div className="min-h-screen bg-[#09090b] text-[#fafafa] font-sans antialiased selection:bg-white selection:text-black">
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -27,7 +27,7 @@ export const AppShell: React.FC<AppShellProps> = ({
       />
       <Header pageTitle={pageTitle} isCollapsed={isCollapsed} />
       <main
-        className={`pt-20 pb-12 px-6 transition-all duration-300 ${
+        className={`pt-20 pb-12 px-4 sm:px-6 transition-all duration-300 min-w-0 ${
           isCollapsed ? 'ml-20' : 'ml-64'
         }`}
       >

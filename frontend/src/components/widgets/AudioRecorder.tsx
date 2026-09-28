@@ -59,17 +59,17 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
   };
 
   return (
-    <div className="w-full flex flex-col items-center gap-3 p-4 bg-[#212121] border border-[#0D7377]/60 rounded-2xl">
-      <p className="text-xs font-semibold text-zinc-300 text-center">{label}</p>
+    <div className="w-full flex flex-col items-center gap-3 p-4 bg-[#18181b] border border-[#27272a] rounded-2xl">
+      <p className="text-xs text-[#a1a1aa] text-center">{label}</p>
 
       {!audioUrl ? (
         !isRecording ? (
-          <Button type="button" onClick={startRecording} variant="primary" icon={<Mic className="w-4 h-4" />}>
+          <Button type="button" onClick={startRecording} variant="default" icon={<Mic className="w-4 h-4" />}>
             Start Recording
           </Button>
         ) : (
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-2 px-3 py-1.5 bg-rose-950/80 border border-rose-700 text-rose-300 text-xs font-semibold rounded-full animate-pulse">
+            <span className="flex items-center gap-2 px-3 py-1.5 bg-rose-950/80 border border-rose-800 text-rose-300 text-xs font-medium rounded-full animate-pulse">
               <span className="w-2 h-2 rounded-full bg-rose-500" />
               Recording Audio...
             </span>
@@ -80,12 +80,12 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
         )
       ) : (
         <div className="w-full flex flex-col items-center gap-3">
-          <audio src={audioUrl} controls className="w-full max-w-xs h-10 accent-[#14FFEC]" />
+          <audio src={audioUrl} controls className="w-full max-w-xs h-10" />
           <div className="flex gap-2">
             <Button type="button" onClick={resetRecording} variant="secondary" size="sm" icon={<RotateCcw className="w-3.5 h-3.5" />}>
               Re-record
             </Button>
-            <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#14FFEC] px-3 py-1 bg-[#0D7377]/40 rounded-full border border-[#14FFEC]/40">
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-white px-3 py-1 bg-[#27272a] rounded-full border border-[#3f3f46]">
               <Check className="w-3.5 h-3.5" /> Ready
             </span>
           </div>

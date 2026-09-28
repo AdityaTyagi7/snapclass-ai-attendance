@@ -58,11 +58,11 @@ export const EnrollSubjectModal: React.FC<EnrollSubjectModalProps> = ({
           required
           autoFocus
         />
-        <div className="flex justify-end gap-3 pt-3 border-t border-[#212121]">
+        <div className="flex justify-end gap-3 pt-3 border-t border-[#27272a]">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
             Cancel
           </Button>
-          <Button type="submit" variant="primary" isLoading={isLoading} icon={<UserPlus className="w-4 h-4" />}>
+          <Button type="submit" variant="default" isLoading={isLoading} icon={<UserPlus className="w-4 h-4" />}>
             Enroll Now
           </Button>
         </div>

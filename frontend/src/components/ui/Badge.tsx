@@ -4,24 +4,27 @@ import { twMerge } from 'tailwind-merge';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'success' | 'warning' | 'error' | 'info' | 'neutral';
+  variant?: 'default' | 'secondary' | 'outline' | 'success' | 'warning' | 'error' | 'info' | 'neutral';
   className?: string;
 }
 
-export const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral', className }) => {
+export const Badge: React.FC<BadgeProps> = ({ children, variant = 'secondary', className }) => {
   const variants = {
-    success: 'bg-[#0D7377]/60 text-[#14FFEC] border-[#14FFEC]/50 shadow-xs shadow-[#14FFEC]/20',
-    warning: 'bg-amber-950/60 text-amber-300 border-amber-700/60',
-    error: 'bg-rose-950/60 text-rose-300 border-rose-700/60 font-semibold',
-    info: 'bg-[#323232] text-[#14FFEC] border-[#0D7377]',
-    neutral: 'bg-[#212121] text-zinc-300 border-[#323232]',
+    default: 'bg-white text-black border-transparent font-bold',
+    secondary: 'bg-[#27272a] text-[#fafafa] border-transparent font-medium',
+    outline: 'border border-[#27272a] bg-transparent text-[#fafafa]',
+    success: 'bg-emerald-950/70 text-emerald-300 border-emerald-800 font-semibold',
+    warning: 'bg-amber-950/70 text-amber-300 border-amber-800 font-semibold',
+    error: 'bg-rose-950/70 text-rose-300 border-rose-800 font-semibold',
+    info: 'bg-[#18181b] text-white border-[#27272a]',
+    neutral: 'bg-[#18181b] text-[#a1a1aa] border-[#27272a]',
   };
 
   return (
     <span
       className={twMerge(
         clsx(
-          'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold tracking-tight border shrink-0',
+          'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs tracking-tight border shrink-0',
           variants[variant],
           className
         )

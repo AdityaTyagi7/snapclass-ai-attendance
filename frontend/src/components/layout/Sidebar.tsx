@@ -19,6 +19,19 @@ interface SidebarProps {
   setIsCollapsed: (collapsed: boolean) => void;
 }
 
+const BrandMark = ({ className }: { className?: string }) => {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+      className={className}
+    >
+      <path d="M2.3 12h2.4v10.95h6.2V14.6h4.6v8.35h6.2V12h-2.4V1.05h-6.2V9.4H8.5V1.05H2.3Z" />
+    </svg>
+  );
+};
+
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
@@ -29,7 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const teacherNav = [
     { id: 'take_attendance', label: 'Take Attendance', icon: Camera },
-    { id: 'manage_subjects', label: 'Manage Subjects', icon: BookOpen },
+    { id: 'manage_subjects', label: 'Manage Courses', icon: BookOpen },
     { id: 'attendance_records', label: 'Attendance Records', icon: ClipboardList },
   ];
 
@@ -44,34 +57,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`fixed left-0 top-0 z-40 h-screen bg-[#212121] text-white transition-all duration-300 border-r border-[#0D7377]/40 flex flex-col justify-between ${
+      className={`fixed left-0 top-0 z-40 h-screen bg-[#0c0c0e] text-[#fafafa] transition-all duration-300 border-r border-[#27272a] flex flex-col justify-between ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
       {/* Top Header & Branding */}
       <div>
-        <div className="h-16 flex items-center justify-between px-4 border-b border-[#0D7377]/40">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-[#27272a]">
           {!isCollapsed && (
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-md bg-[#0D7377] text-[#14FFEC] border border-[#14FFEC]/40 flex items-center justify-center font-bold shadow-md shadow-[#0D7377]/30">
-                <ShieldCheck className="w-5 h-5 text-[#14FFEC]" />
-              </div>
+            <div className="flex items-center gap-2.5">
+              <BrandMark className="size-6 text-white" />
               <div>
-                <h1 className="text-sm font-extrabold text-[#14FFEC] tracking-wider uppercase font-sans">SnapClass</h1>
-                <p className="text-[10px] text-zinc-400 font-semibold tracking-widest uppercase">Enterprise Platform</p>
+                <h1 className="text-sm font-semibold tracking-[-0.025em] text-white">SnapClass</h1>
+                <p className="text-[10px] text-[#a1a1aa] font-medium tracking-wider uppercase">Attendance System</p>
               </div>
             </div>
           )}
 
           {isCollapsed && (
-            <div className="w-8 h-8 mx-auto rounded-md bg-[#0D7377] text-[#14FFEC] border border-[#14FFEC]/40 flex items-center justify-center font-bold shadow-md shadow-[#0D7377]/30">
-              <ShieldCheck className="w-5 h-5 text-[#14FFEC]" />
+            <div className="mx-auto">
+              <BrandMark className="size-6 text-white" />
             </div>
           )}
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`p-1.5 text-zinc-400 hover:text-[#14FFEC] hover:bg-[#323232] rounded-md transition cursor-pointer ${
+            className={`p-1.5 text-[#a1a1aa] hover:text-white hover:bg-[#18181b] rounded-md transition cursor-pointer ${
               isCollapsed ? 'mx-auto mt-2' : ''
             }`}
           >
@@ -81,9 +92,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Role Badge */}
         {!isCollapsed && userRole && (
-          <div className="px-3.5 py-2 mx-4 mt-4 rounded-md bg-[#323232] border border-[#0D7377]/60 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#14FFEC] shadow-sm shadow-[#14FFEC]" />
-            <span className="text-xs font-semibold text-[#14FFEC] capitalize">{userRole} Portal</span>
+          <div className="px-3.5 py-2 mx-4 mt-4 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-between">
+            <span className="text-xs font-medium text-[#fafafa] capitalize">{userRole} Workspace</span>
+            <span className="w-2 h-2 rounded-full bg-white" />
           </div>
         )}
 
@@ -96,14 +107,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-md font-semibold text-xs transition-all duration-150 cursor-pointer ${
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all duration-150 cursor-pointer ${
                   isActive
-                    ? 'bg-[#0D7377] text-[#14FFEC] font-bold border border-[#14FFEC]/50 shadow-md shadow-[#0D7377]/40'
-                    : 'text-zinc-400 hover:bg-[#323232] hover:text-[#14FFEC]'
+                    ? 'bg-[#27272a] text-white shadow-xs font-semibold'
+                    : 'text-[#a1a1aa] hover:bg-[#18181b] hover:text-white'
                 } ${isCollapsed ? 'justify-center px-0' : ''}`}
                 title={isCollapsed ? item.label : undefined}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#14FFEC]' : 'text-zinc-400'}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-[#a1a1aa]'}`} />
                 {!isCollapsed && <span>{item.label}</span>}
               </button>
             );
@@ -112,24 +123,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* User Footer & Logout */}
-      <div className="p-3 border-t border-[#0D7377]/40 bg-[#212121]">
+      <div className="p-3 border-t border-[#27272a] bg-[#0c0c0e]">
         {!isCollapsed && (
-          <div className="flex items-center justify-between p-2 mb-2 rounded-md bg-[#323232] border border-[#0D7377]/60">
+          <div className="flex items-center justify-between p-2.5 mb-2 rounded-xl bg-[#18181b] border border-[#27272a]">
             <div className="min-w-0 pr-2">
-              <p className="text-xs font-bold text-white truncate">{userName || 'User'}</p>
-              <p className="text-[10px] text-[#14FFEC]/80 truncate">{userSubtext}</p>
+              <p className="text-xs font-semibold text-white truncate">{userName || 'User'}</p>
+              <p className="text-[10px] text-[#a1a1aa] truncate">{userSubtext}</p>
+            </div>
+            <div className="w-7 h-7 rounded-full bg-[#27272a] flex items-center justify-center font-bold text-xs text-white">
+              {userName ? userName.charAt(0).toUpperCase() : 'U'}
             </div>
           </div>
         )}
 
         <button
           onClick={logout}
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-md font-semibold text-xs text-zinc-400 hover:bg-[#323232] hover:text-[#14FFEC] transition cursor-pointer ${
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium text-xs text-[#a1a1aa] hover:bg-[#18181b] hover:text-white transition cursor-pointer ${
             isCollapsed ? 'justify-center px-0' : ''
           }`}
           title="Sign Out"
         >
-          <LogOut className="w-4 h-4 shrink-0 text-zinc-400" />
+          <LogOut className="w-4 h-4 shrink-0 text-[#a1a1aa]" />
           {!isCollapsed && <span>Sign Out</span>}
         </button>
       </div>

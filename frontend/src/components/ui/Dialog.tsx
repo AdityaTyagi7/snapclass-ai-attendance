@@ -42,19 +42,19 @@ export const Dialog: React.FC<DialogProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
       <div
-        className={`w-full ${widthClasses[maxWidth]} bg-[#323232] text-white rounded-2xl shadow-2xl border border-[#0D7377] overflow-hidden transform animate-in zoom-in-95 duration-200`}
+        className={`w-full ${widthClasses[maxWidth]} bg-[#121215] text-[#fafafa] rounded-2xl shadow-2xl border border-[#27272a] overflow-hidden transform animate-in zoom-in-95 duration-200`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-5 border-b border-[#212121]">
+        <div className="flex items-center justify-between p-5 border-b border-[#27272a]">
           <div>
-            <h3 className="text-base font-bold text-[#14FFEC]">{title}</h3>
-            {description && <p className="text-xs text-zinc-400 mt-0.5">{description}</p>}
+            <h3 className="text-base font-semibold text-white">{title}</h3>
+            {description && <p className="text-xs text-[#a1a1aa] mt-0.5">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-zinc-400 hover:text-[#14FFEC] hover:bg-[#212121] rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-[#a1a1aa] hover:text-white hover:bg-[#18181b] rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>

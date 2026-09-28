@@ -77,11 +77,11 @@ export const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({
           value={section}
           onChange={(e) => setSection(e.target.value)}
         />
-        <div className="flex justify-end gap-3 pt-3 border-t border-[#212121]">
+        <div className="flex justify-end gap-3 pt-3 border-t border-[#27272a]">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
             Cancel
           </Button>
-          <Button type="submit" variant="primary" isLoading={isLoading} icon={<BookPlus className="w-4 h-4" />}>
+          <Button type="submit" variant="default" isLoading={isLoading} icon={<BookPlus className="w-4 h-4" />}>
             Create Subject
           </Button>
         </div>
