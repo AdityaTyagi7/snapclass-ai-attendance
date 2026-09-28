@@ -7,13 +7,12 @@ import {
   BookOpen,
   Camera,
   ClipboardList,
-  FileText,
   Plus,
   Share2,
   Users,
   Clock,
-  CheckCircle2,
 } from 'lucide-react';
+import { motion, AnimatePresence, type Variants } from 'motion/react';
 
 import { useAuth } from '../context/AuthContext';
 import { teacherApi } from '../api/teacherApi';
@@ -24,10 +23,28 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Progress } from '../components/ui/Progress';
 import { Skeleton } from '../components/ui/Skeleton';
-import { Avatar, AvatarFallback } from '../components/ui/Avatar';
 import { CreateSubjectModal } from '../components/widgets/CreateSubjectModal';
 import { ShareSubjectModal } from '../components/widgets/ShareSubjectModal';
 import { TakeAttendanceWizard } from '../components/widgets/TakeAttendanceWizard';
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: 'easeOut' },
+  },
+};
 
 export const TeacherDashboard: React.FC = () => {
   const { teacher } = useAuth();
@@ -159,307 +176,349 @@ export const TeacherDashboard: React.FC = () => {
     },
   ];
 
+  const tabs = [
+    { id: 'take_attendance', label: 'Take Attendance', icon: Camera },
+    { id: 'manage_subjects', label: 'Manage Courses', icon: BookOpen },
+    { id: 'attendance_records', label: 'History & Records', icon: ClipboardList },
+  ];
+
   return (
     <AppShell activeTab={activeTab} setActiveTab={setActiveTab} pageTitle={getTitle()}>
       <div className="flex flex-col gap-6">
         
-        {/* TOP STATS CARDS MATCHING TEMPLATE */}
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {/* TOP STATS CARDS WITH STAGGERED MOTION */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        >
           {stats.map((stat) => (
-            <Card key={stat.label}>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-[#a1a1aa]">
-                  {stat.label}
-                </CardTitle>
-                <stat.icon aria-hidden className="size-4 text-[#a1a1aa]" />
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold tabular-nums text-white">
-                  {stat.value}
-                </p>
-                <p className="text-xs text-[#a1a1aa] mt-1">{stat.hint}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* TAB NAVIGATION PILLS */}
-        <div className="flex items-center gap-1.5 p-1 bg-[#121215] rounded-xl border border-[#27272a] w-fit">
-          <button
-            onClick={() => setActiveTab('take_attendance')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-              activeTab === 'take_attendance'
-                ? 'bg-white text-black font-semibold shadow-xs'
-                : 'text-[#a1a1aa] hover:text-white'
-            }`}
-          >
-            <Camera className="w-3.5 h-3.5" />
-            <span>Take Attendance</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('manage_subjects')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-              activeTab === 'manage_subjects'
-                ? 'bg-white text-black font-semibold shadow-xs'
-                : 'text-[#a1a1aa] hover:text-white'
-            }`}
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Manage Courses</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('attendance_records')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-              activeTab === 'attendance_records'
-                ? 'bg-white text-black font-semibold shadow-xs'
-                : 'text-[#a1a1aa] hover:text-white'
-            }`}
-          >
-            <ClipboardList className="w-3.5 h-3.5" />
-            <span>History & Records</span>
-          </button>
-        </div>
-
-        {/* TAB 1: TAKE ATTENDANCE */}
-        {activeTab === 'take_attendance' && (
-          <div className="space-y-6">
-            {isLoading ? (
-              <div className="space-y-4">
-                <Skeleton className="h-64 w-full" />
-              </div>
-            ) : (
-              <TakeAttendanceWizard subjects={subjects} onAttendanceCompleted={fetchData} />
-            )}
-          </div>
-        )}
-
-        {/* TAB 2: MANAGE COURSES */}
-        {activeTab === 'manage_subjects' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-white tracking-tight">Active Courses</h2>
-                <p className="text-xs text-[#a1a1aa] mt-0.5">Manage your registered subjects and share student join codes</p>
-              </div>
-              <Button
-                variant="default"
-                onClick={() => setIsCreateModalOpen(true)}
-                icon={<Plus className="w-4 h-4" />}
-              >
-                Create Subject
-              </Button>
-            </div>
-
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Skeleton className="h-44 w-full" />
-                <Skeleton className="h-44 w-full" />
-              </div>
-            ) : subjects.length === 0 ? (
-              <Card className="text-center py-12">
-                <CardContent className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-center mb-3 text-white">
-                    <BookOpen className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-sm font-semibold text-white">No Courses Created Yet</h3>
-                  <p className="text-xs text-[#a1a1aa] mt-1 max-w-sm">
-                    Get started by creating your first subject to generate a student join code.
+            <motion.div
+              key={stat.label}
+              variants={itemVariants}
+              whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            >
+              <Card className="h-full hover:border-[#3f3f46] transition-colors">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-[#a1a1aa]">
+                    {stat.label}
+                  </CardTitle>
+                  <stat.icon aria-hidden className="size-4 text-[#a1a1aa]" />
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold tabular-nums text-white">
+                    {stat.value}
                   </p>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="mt-4"
-                    onClick={() => setIsCreateModalOpen(true)}
-                    icon={<Plus className="w-4 h-4" />}
-                  >
-                    Create Subject
-                  </Button>
+                  <p className="text-xs text-[#a1a1aa] mt-1">{stat.hint}</p>
                 </CardContent>
               </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {subjects.map((sub) => {
-                  const rate = sub.total_students ? Math.min(100, Math.round(((sub.total_classes || 0) / 20) * 100)) : 0;
-                  return (
-                    <Card key={sub.subject_id} className="flex flex-col justify-between hover:border-[#3f3f46] transition-colors">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <CardTitle className="text-base font-semibold">{sub.name}</CardTitle>
-                            <CardDescription>Section {sub.section || 'A'}</CardDescription>
-                          </div>
-                          <Badge variant="secondary" className="font-mono">
-                            {sub.subject_code}
-                          </Badge>
-                        </div>
-                      </CardHeader>
+            </motion.div>
+          ))}
+        </motion.div>
 
-                      <CardContent className="py-2 space-y-3">
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          <div className="p-2.5 bg-[#18181b] rounded-lg border border-[#27272a]">
-                            <p className="text-[#a1a1aa] uppercase tracking-wider text-[10px] font-medium">Students</p>
-                            <p className="text-sm font-semibold text-white mt-0.5">{sub.total_students || 0}</p>
-                          </div>
-                          <div className="p-2.5 bg-[#18181b] rounded-lg border border-[#27272a]">
-                            <p className="text-[#a1a1aa] uppercase tracking-wider text-[10px] font-medium">Sessions</p>
-                            <p className="text-sm font-semibold text-white mt-0.5">{sub.total_classes || 0}</p>
-                          </div>
-                        </div>
+        {/* TAB NAVIGATION PILLS WITH ANIMATED ACTIVE INDICATOR */}
+        <div className="flex items-center gap-1.5 p-1 bg-[#121215] rounded-xl border border-[#27272a] w-fit relative">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer z-10 ${
+                  isActive ? 'text-black font-semibold' : 'text-[#a1a1aa] hover:text-white'
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="teacherTabIndicator"
+                    className="absolute inset-0 bg-white rounded-lg -z-10 shadow-xs"
+                    transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                  />
+                )}
+                <Icon className="w-3.5 h-3.5" />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
 
-                        <div className="space-y-1.5 pt-1">
-                          <div className="flex justify-between text-xs text-[#a1a1aa]">
-                            <span>Course Progress</span>
-                            <span>{sub.total_classes || 0} classes logged</span>
-                          </div>
-                          <Progress value={rate} />
-                        </div>
-                      </CardContent>
-
-                      <CardFooter className="pt-3">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="w-full text-xs"
-                          onClick={() => setShareSubject(sub)}
-                          icon={<Share2 className="w-3.5 h-3.5" />}
-                        >
-                          Share Code & QR
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* TAB 3: ATTENDANCE RECORDS & ANALYTICS (Matches Template Chart & Recent Activity) */}
-        {activeTab === 'attendance_records' && (
-          <div className="space-y-6">
-            {/* AREA CHART MATCHING TEMPLATE */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Attendance throughput</CardTitle>
-                <CardDescription>
-                  Enrolled students against verified attendees over recent sessions
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="colorPresent" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#ffffff" stopOpacity={0.25} />
-                          <stop offset="100%" stopColor="#ffffff" stopOpacity={0.02} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid vertical={false} stroke="#27272a" strokeDasharray="3 3" />
-                      <XAxis
-                        dataKey="session"
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fill: '#a1a1aa', fontSize: 12 }}
-                      />
-                      <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        width={30}
-                        tick={{ fill: '#a1a1aa', fontSize: 12 }}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: '#18181b',
-                          borderColor: '#27272a',
-                          borderRadius: '8px',
-                          color: '#ffffff',
-                          fontSize: '12px',
-                        }}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="expected"
-                        stroke="#71717a"
-                        strokeDasharray="4 4"
-                        fill="none"
-                        strokeWidth={1.5}
-                        name="Enrolled"
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="present"
-                        stroke="#ffffff"
-                        fill="url(#colorPresent)"
-                        strokeWidth={2}
-                        name="Present"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+        {/* ANIMATED TAB CONTENT */}
+        <AnimatePresence mode="wait">
+          {/* TAB 1: TAKE ATTENDANCE */}
+          {activeTab === 'take_attendance' && (
+            <motion.div
+              key="take_attendance"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              {isLoading ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-64 w-full" />
                 </div>
-              </CardContent>
-            </Card>
+              ) : (
+                <TakeAttendanceWizard subjects={subjects} onAttendanceCompleted={fetchData} />
+              )}
+            </motion.div>
+          )}
 
-            {/* TABLE & RECENT ACTIVITY MATCHING TEMPLATE */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Attendance Log History</CardTitle>
-                <CardDescription>Historical records of classroom attendance scans</CardDescription>
-              </CardHeader>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-[#27272a] bg-[#18181b]/50 text-xs font-semibold text-[#a1a1aa] uppercase tracking-wider">
-                      <th className="py-3 px-5">Timestamp</th>
-                      <th className="py-3 px-5">Subject</th>
-                      <th className="py-3 px-5">Course Code</th>
-                      <th className="py-3 px-5">Present Count</th>
-                      <th className="py-3 px-5 text-right">Attendance Rate</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#27272a] text-sm text-[#fafafa]">
-                    {isLoading ? (
-                      <tr>
-                        <td colSpan={5} className="p-4 text-center">
-                          <Skeleton className="h-6 w-full" />
-                        </td>
-                      </tr>
-                    ) : groupedRecords.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="py-12 text-center text-xs text-[#a1a1aa]">
-                          No attendance sessions recorded yet
-                        </td>
-                      </tr>
-                    ) : (
-                      groupedRecords.map((item, idx) => {
-                        const rate = item.total > 0 ? Math.round((item.present / item.total) * 100) : 0;
-                        return (
-                          <tr key={idx} className="hover:bg-[#18181b]/60 transition-colors">
-                            <td className="py-3 px-5 font-mono text-xs text-[#a1a1aa]">{item.time}</td>
-                            <td className="py-3 px-5 font-medium text-white">{item.subject}</td>
-                            <td className="py-3 px-5">
-                              <Badge variant="secondary" className="font-mono">
-                                {item.code}
-                              </Badge>
-                            </td>
-                            <td className="py-3 px-5 text-xs text-[#a1a1aa]">
-                              {item.present} of {item.total} students
-                            </td>
-                            <td className="py-3 px-5 text-right">
-                              <Badge variant="default" className="font-mono font-bold">
-                                {rate}%
-                              </Badge>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
+          {/* TAB 2: MANAGE COURSES */}
+          {activeTab === 'manage_subjects' && (
+            <motion.div
+              key="manage_subjects"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-white tracking-tight">Active Courses</h2>
+                  <p className="text-xs text-[#a1a1aa] mt-0.5">Manage your registered subjects and share student join codes</p>
+                </div>
+                <Button
+                  variant="default"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  icon={<Plus className="w-4 h-4" />}
+                >
+                  Create Subject
+                </Button>
               </div>
-            </Card>
-          </div>
-        )}
+
+              {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Skeleton className="h-44 w-full" />
+                  <Skeleton className="h-44 w-full" />
+                </div>
+              ) : subjects.length === 0 ? (
+                <Card className="text-center py-12">
+                  <CardContent className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-xl bg-[#18181b] border border-[#27272a] flex items-center justify-center mb-3 text-white">
+                      <BookOpen className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-white">No Courses Created Yet</h3>
+                    <p className="text-xs text-[#a1a1aa] mt-1 max-w-sm">
+                      Get started by creating your first subject to generate a student join code.
+                    </p>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="mt-4"
+                      onClick={() => setIsCreateModalOpen(true)}
+                      icon={<Plus className="w-4 h-4" />}
+                    >
+                      Create Subject
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                >
+                  {subjects.map((sub) => {
+                    const rate = sub.total_students ? Math.min(100, Math.round(((sub.total_classes || 0) / 20) * 100)) : 0;
+                    return (
+                      <motion.div
+                        key={sub.subject_id}
+                        variants={itemVariants}
+                        whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                      >
+                        <Card className="flex flex-col justify-between h-full hover:border-[#3f3f46] transition-colors">
+                          <CardHeader className="pb-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <CardTitle className="text-base font-semibold">{sub.name}</CardTitle>
+                                <CardDescription>Section {sub.section || 'A'}</CardDescription>
+                              </div>
+                              <Badge variant="secondary" className="font-mono">
+                                {sub.subject_code}
+                              </Badge>
+                            </div>
+                          </CardHeader>
+
+                          <CardContent className="py-2 space-y-3">
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div className="p-2.5 bg-[#18181b] rounded-lg border border-[#27272a]">
+                                <p className="text-[#a1a1aa] uppercase tracking-wider text-[10px] font-medium">Students</p>
+                                <p className="text-sm font-semibold text-white mt-0.5">{sub.total_students || 0}</p>
+                              </div>
+                              <div className="p-2.5 bg-[#18181b] rounded-lg border border-[#27272a]">
+                                <p className="text-[#a1a1aa] uppercase tracking-wider text-[10px] font-medium">Sessions</p>
+                                <p className="text-sm font-semibold text-white mt-0.5">{sub.total_classes || 0}</p>
+                              </div>
+                            </div>
+
+                            <div className="space-y-1.5 pt-1">
+                              <div className="flex justify-between text-xs text-[#a1a1aa]">
+                                <span>Course Progress</span>
+                                <span>{sub.total_classes || 0} classes logged</span>
+                              </div>
+                              <Progress value={rate} />
+                            </div>
+                          </CardContent>
+
+                          <CardFooter className="pt-3">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              className="w-full text-xs"
+                              onClick={() => setShareSubject(sub)}
+                              icon={<Share2 className="w-3.5 h-3.5" />}
+                            >
+                              Share Code & QR
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+
+          {/* TAB 3: ATTENDANCE RECORDS */}
+          {activeTab === 'attendance_records' && (
+            <motion.div
+              key="attendance_records"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              {/* AREA CHART */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Attendance throughput</CardTitle>
+                  <CardDescription>
+                    Enrolled students against verified attendees over recent sessions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={chartData} margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorPresent" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#ffffff" stopOpacity={0.25} />
+                            <stop offset="100%" stopColor="#ffffff" stopOpacity={0.02} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid vertical={false} stroke="#27272a" strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="session"
+                          tickLine={false}
+                          axisLine={false}
+                          tick={{ fill: '#a1a1aa', fontSize: 12 }}
+                        />
+                        <YAxis
+                          tickLine={false}
+                          axisLine={false}
+                          width={30}
+                          tick={{ fill: '#a1a1aa', fontSize: 12 }}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: '#18181b',
+                            borderColor: '#27272a',
+                            borderRadius: '8px',
+                            color: '#ffffff',
+                            fontSize: '12px',
+                          }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="expected"
+                          stroke="#71717a"
+                          strokeDasharray="4 4"
+                          fill="none"
+                          strokeWidth={1.5}
+                          name="Enrolled"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="present"
+                          stroke="#ffffff"
+                          fill="url(#colorPresent)"
+                          strokeWidth={2}
+                          name="Present"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* TABLE & RECENT ACTIVITY */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Attendance Log History</CardTitle>
+                  <CardDescription>Historical records of classroom attendance scans</CardDescription>
+                </CardHeader>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-[#27272a] bg-[#18181b]/50 text-xs font-semibold text-[#a1a1aa] uppercase tracking-wider">
+                        <th className="py-3 px-5">Timestamp</th>
+                        <th className="py-3 px-5">Subject</th>
+                        <th className="py-3 px-5">Course Code</th>
+                        <th className="py-3 px-5">Present Count</th>
+                        <th className="py-3 px-5 text-right">Attendance Rate</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#27272a] text-sm text-[#fafafa]">
+                      {isLoading ? (
+                        <tr>
+                          <td colSpan={5} className="p-4 text-center">
+                            <Skeleton className="h-6 w-full" />
+                          </td>
+                        </tr>
+                      ) : groupedRecords.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="py-12 text-center text-xs text-[#a1a1aa]">
+                            No attendance sessions recorded yet
+                          </td>
+                        </tr>
+                      ) : (
+                        groupedRecords.map((item, idx) => {
+                          const rate = item.total > 0 ? Math.round((item.present / item.total) * 100) : 0;
+                          return (
+                            <tr key={idx} className="hover:bg-[#18181b]/60 transition-colors">
+                              <td className="py-3 px-5 font-mono text-xs text-[#a1a1aa]">{item.time}</td>
+                              <td className="py-3 px-5 font-medium text-white">{item.subject}</td>
+                              <td className="py-3 px-5">
+                                <Badge variant="secondary" className="font-mono">
+                                  {item.code}
+                                </Badge>
+                              </td>
+                              <td className="py-3 px-5 text-xs text-[#a1a1aa]">
+                                {item.present} of {item.total} students
+                              </td>
+                              <td className="py-3 px-5 text-right">
+                                <Badge variant="default" className="font-mono font-bold">
+                                  {rate}%
+                                </Badge>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
 
