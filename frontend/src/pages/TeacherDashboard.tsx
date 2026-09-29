@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import {
   BarChart3,
   BookOpen,
@@ -128,25 +127,6 @@ export const TeacherDashboard: React.FC = () => {
     const totalPresent = groupedRecords.reduce((acc, r) => acc + r.present, 0);
     const totalPossible = groupedRecords.reduce((acc, r) => acc + r.total, 0);
     return totalPossible > 0 ? Math.round((totalPresent / totalPossible) * 100) : 0;
-  }, [groupedRecords]);
-
-  // Dynamic weekly chart data matching template
-  const chartData = useMemo(() => {
-    if (groupedRecords.length === 0) {
-      return [
-        { session: 'W1', expected: 30, present: 28 },
-        { session: 'W2', expected: 30, present: 26 },
-        { session: 'W3', expected: 35, present: 33 },
-        { session: 'W4', expected: 35, present: 32 },
-        { session: 'W5', expected: 40, present: 38 },
-        { session: 'W6', expected: 40, present: 39 },
-      ];
-    }
-    return groupedRecords.slice(-8).map((r, i) => ({
-      session: `S${i + 1}`,
-      expected: r.total,
-      present: r.present,
-    }));
   }, [groupedRecords]);
 
   const stats = [
@@ -395,69 +375,6 @@ export const TeacherDashboard: React.FC = () => {
               transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              {/* AREA CHART */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Attendance throughput</CardTitle>
-                  <CardDescription>
-                    Enrolled students against verified attendees over recent sessions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={chartData} margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
-                        <defs>
-                          <linearGradient id="colorPresent" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#ffffff" stopOpacity={0.25} />
-                            <stop offset="100%" stopColor="#ffffff" stopOpacity={0.02} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid vertical={false} stroke="#27272a" strokeDasharray="3 3" />
-                        <XAxis
-                          dataKey="session"
-                          tickLine={false}
-                          axisLine={false}
-                          tick={{ fill: '#a1a1aa', fontSize: 12 }}
-                        />
-                        <YAxis
-                          tickLine={false}
-                          axisLine={false}
-                          width={30}
-                          tick={{ fill: '#a1a1aa', fontSize: 12 }}
-                        />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: '#18181b',
-                            borderColor: '#27272a',
-                            borderRadius: '8px',
-                            color: '#ffffff',
-                            fontSize: '12px',
-                          }}
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="expected"
-                          stroke="#71717a"
-                          strokeDasharray="4 4"
-                          fill="none"
-                          strokeWidth={1.5}
-                          name="Enrolled"
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="present"
-                          stroke="#ffffff"
-                          fill="url(#colorPresent)"
-                          strokeWidth={2}
-                          name="Present"
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-
               {/* TABLE & RECENT ACTIVITY */}
               <Card>
                 <CardHeader>
