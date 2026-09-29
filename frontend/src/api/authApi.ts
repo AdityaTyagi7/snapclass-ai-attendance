@@ -19,13 +19,10 @@ export const authApi = {
     return res.data;
   },
 
-  registerStudent: async (name: string, faceImage: File, voiceAudio?: File | Blob): Promise<{ student: Student }> => {
+  registerStudent: async (name: string, faceImage: File): Promise<{ student: Student }> => {
     const formData = new FormData();
     formData.append('name', name);
     formData.append('face_image', faceImage, 'face.jpg');
-    if (voiceAudio) {
-      formData.append('voice_audio', voiceAudio, 'voice.wav');
-    }
     const res = await apiClient.post('/api/auth/student/register', formData);
     return res.data;
   },

@@ -16,18 +16,6 @@ export const attendanceApi = {
     return res.data;
   },
 
-  scanVoiceAudio: async (
-    subjectId: number,
-    audioFile: File | Blob
-  ): Promise<{ results: ScanResult[]; logs: AttendanceLogEntry[]; message?: string }> => {
-    const formData = new FormData();
-    formData.append('subject_id', subjectId.toString());
-    formData.append('audio', audioFile, 'classroom_audio.wav');
-
-    const res = await apiClient.post('/api/attendance/voice-scan', formData);
-    return res.data;
-  },
-
   confirmAttendance: async (logs: AttendanceLogEntry[]) => {
     const res = await apiClient.post('/api/attendance/confirm', { logs });
     return res.data;

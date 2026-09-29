@@ -20,7 +20,6 @@ import { useAuth } from "../context/AuthContext";
 import { authApi } from "../api/authApi";
 import { useToast } from "../components/ui/Toast";
 import { CameraModal } from "../components/widgets/CameraModal";
-import { AudioRecorder } from "../components/widgets/AudioRecorder";
 
 const ENTER =
   "animate-in fade-in slide-in-from-bottom-4 duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] fill-mode-both motion-reduce:animate-none";
@@ -130,7 +129,6 @@ export const AuthPage: React.FC = () => {
   const [scanStep, setScanStep] = useState<"camera" | "register">("camera");
   const [studentName, setStudentName] = useState("");
   const [faceFile, setFaceFile] = useState<File | null>(null);
-  const [voiceBlob, setVoiceBlob] = useState<Blob | null>(null);
 
   // Handle Teacher Login
   const handleTeacherLogin = async (e: React.FormEvent) => {
@@ -240,8 +238,7 @@ export const AuthPage: React.FC = () => {
     try {
       const res = await authApi.registerStudent(
         studentName.trim(),
-        faceFile,
-        voiceBlob || undefined
+        faceFile
       );
       toast({
         type: "success",
@@ -299,7 +296,7 @@ export const AuthPage: React.FC = () => {
           className={cn(ENTER, "relative z-10 mt-auto flex flex-col gap-3 max-w-lg")}
         >
           <blockquote className="font-serif text-2xl leading-[1.25] tracking-tight text-[#fafafa] md:text-3xl">
-            "Automated classroom attendance with spatial facial landmarks and neural voiceprints.{" "}
+            "Automated classroom attendance with spatial facial landmarks and biometric verification.{" "}
             <span className="italic text-white">Never manual roll calls again</span>."
           </blockquote>
           <figcaption className="flex items-center gap-2 text-xs uppercase text-[#a1a1aa] font-mono">
@@ -659,16 +656,6 @@ export const AuthPage: React.FC = () => {
                         className="w-full rounded-xl border border-[#27272a] bg-[#18181b] px-3.5 py-2.5 text-sm text-white placeholder:text-[#71717a] focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white transition"
                         required
                         autoFocus
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-[#a1a1aa] uppercase tracking-wider mb-1.5">
-                        Optional: Voice Sample
-                      </label>
-                      <AudioRecorder
-                        onAudioRecorded={(blob) => setVoiceBlob(blob)}
-                        label="Record short audio (e.g. 'I am present') for voice attendance"
                       />
                     </div>
 

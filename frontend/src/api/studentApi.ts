@@ -6,17 +6,8 @@ export const studentApi = {
     subjects: EnrolledSubjectNode[];
     logs: StudentAttendanceLog[];
     stats_map: Record<number, { total: number; attended: number }>;
-    has_voice?: boolean;
   }> => {
     const res = await apiClient.get(`/api/student/dashboard-data?student_id=${studentId}`);
-    return res.data;
-  },
-
-  updateVoice: async (studentId: number, audioBlob: Blob) => {
-    const formData = new FormData();
-    formData.append('student_id', studentId.toString());
-    formData.append('voice_audio', audioBlob, 'voice.wav');
-    const res = await apiClient.post('/api/student/update-voice', formData);
     return res.data;
   },
 

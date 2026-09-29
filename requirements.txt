@@ -18,9 +18,3 @@ scikit-learn
 dlib-bin
 git+https://github.com/ageitgey/face_recognition_models
 setuptools<70.0.0
-
-# Voice Recognition
-librosa
-resemblyzer
-webrtcvad-wheels; sys_platform == 'win32'
-webrtcvad; sys_platform != 'win32'

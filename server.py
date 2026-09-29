@@ -31,11 +31,7 @@ from src.pipelines.face_pipeline import (
     predict_attendance,
     get_face_embeddings,
     train_classifier,
-)
-from src.pipelines.voice_pipeline import (
-    get_voice_embedding,
-    process_bulk_audio,
-    load_voice_encoder,
+    load_dlib_models,
 )
 from contextlib import asynccontextmanager
 import logging
@@ -44,17 +40,10 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Pre-warm ML models at server startup to avoid first-request timeout."""
+    """Pre-warm face detection models at server startup."""
     import asyncio
     loop = asyncio.get_event_loop()
     try:
-        logger.info("Pre-warming VoiceEncoder model...")
-        await loop.run_in_executor(None, load_voice_encoder)
-        logger.info("VoiceEncoder ready.")
-    except Exception as e:
-        logger.warning(f"VoiceEncoder pre-warm failed (non-fatal): {e}")
-    try:
-        from src.pipelines.face_pipeline import load_dlib_models
         logger.info("Pre-warming dlib face models...")
         await loop.run_in_executor(None, load_dlib_models)
         logger.info("dlib models ready.")
@@ -207,7 +196,6 @@ async def scan_face_endpoint(file: UploadFile = File(...)):
 async def register_student_endpoint(
     name: str = Form(...),
     face_image: UploadFile = File(...),
-    voice_audio: Optional[UploadFile] = File(None),
 ):
     if not name:
         raise HTTPException(status_code=400, detail="Name is required")
@@ -222,16 +210,8 @@ async def register_student_endpoint(
             raise HTTPException(status_code=400, detail="Could not detect face features in the provided image")
         
         face_emb = encodings[0].tolist()
-        voice_emb = None
         
-        if voice_audio:
-            audio_bytes = await voice_audio.read()
-            if audio_bytes and len(audio_bytes) > 0:
-                voice_emb = get_voice_embedding(audio_bytes)
-                if voice_emb is None:
-                    print(f"[WARN] Voice embedding extraction returned None for student {name}")
-                
-        response_data = create_student(name, face_embedding=face_emb, voice_embedding=voice_emb)
+        response_data = create_student(name, face_embedding=face_emb)
         if response_data:
             train_classifier()
             return {"success": True, "student": response_data[0]}
@@ -250,12 +230,6 @@ def get_student_dashboard_data(student_id: int):
     subjects = get_student_subjects(student_id)
     logs = get_student_attendance(student_id)
     
-    # Check student voice profile status
-    student_res = supabase.table("students").select("student_id, name, voice_embedding").eq("student_id", student_id).execute()
-    has_voice = False
-    if student_res.data:
-        has_voice = bool(student_res.data[0].get("voice_embedding"))
-        
     # Calculate stats
     stats_map = {}
     for log in logs:
@@ -266,26 +240,7 @@ def get_student_dashboard_data(student_id: int):
         if log.get("is_present"):
             stats_map[sid]["attended"] += 1
             
-    return {"subjects": subjects, "logs": logs, "stats_map": stats_map, "has_voice": has_voice}
-
-@app.post("/api/student/update-voice")
-async def update_student_voice_endpoint(
-    student_id: int = Form(...),
-    voice_audio: UploadFile = File(...),
-):
-    audio_bytes = await voice_audio.read()
-    if not audio_bytes or len(audio_bytes) == 0:
-        raise HTTPException(status_code=400, detail="Audio file is empty")
-    
-    voice_emb = get_voice_embedding(audio_bytes)
-    if not voice_emb:
-        raise HTTPException(status_code=400, detail="Could not extract voice features. Please record 2-3 seconds of clear speech and try again.")
-    
-    res = supabase.table("students").update({"voice_embedding": voice_emb}).eq("student_id", student_id).execute()
-    if not res.data:
-        raise HTTPException(status_code=404, detail="Student not found")
-        
-    return {"success": True, "message": "Voice biometric profile registered successfully!", "student": res.data[0]}
+    return {"subjects": subjects, "logs": logs, "stats_map": stats_map}
 
 @app.post("/api/student/enroll")
 def enroll_student_endpoint(req: EnrollSubjectRequest):
@@ -365,56 +320,6 @@ async def process_face_attendance_endpoint(
         
     return {"results": results, "logs": attendance_to_log}
 
-@app.post("/api/attendance/voice-scan")
-async def process_voice_attendance_endpoint(
-    subject_id: int = Form(...),
-    audio: UploadFile = File(...),
-):
-    audio_bytes = await audio.read()
-    if not audio_bytes:
-        raise HTTPException(status_code=400, detail="Audio file is empty")
-    
-    enrolled_res = supabase.table("subject_students").select("*, students(*)").eq("subject_id", subject_id).execute()
-    enrolled_students = enrolled_res.data
-    
-    if not enrolled_students:
-        raise HTTPException(status_code=400, detail="No students enrolled in this course")
-    
-    candidates_dict = {
-        s["students"]["student_id"]: s["students"]["voice_embedding"]
-        for s in enrolled_students if s["students"].get("voice_embedding")
-    }
-    
-    if not candidates_dict:
-        raise HTTPException(status_code=400, detail="No enrolled students have voice profiles registered")
-    
-    detected_scores = process_bulk_audio(audio_bytes, candidates_dict)
-    results = []
-    attendance_to_log = []
-    current_timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-    
-    for node in enrolled_students:
-        student = node["students"]
-        score = detected_scores.get(student["student_id"], 0.0)
-        is_present = bool(score > 0)
-        
-        results.append({
-            "student_id": student["student_id"],
-            "name": student["name"],
-            "score": round(score, 3) if is_present else 0.0,
-            "source": f"Match Score: {round(score, 2)}" if is_present else "-",
-            "is_present": is_present,
-            "status": "Present" if is_present else "Absent",
-        })
-        
-        attendance_to_log.append({
-            "student_id": student["student_id"],
-            "subject_id": subject_id,
-            "timestamp": current_timestamp,
-            "is_present": bool(is_present),
-        })
-        
-    return {"results": results, "logs": attendance_to_log}
 
 @app.post("/api/attendance/confirm")
 def confirm_attendance_endpoint(req: AttendanceConfirmRequest):
