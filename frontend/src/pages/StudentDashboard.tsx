@@ -53,6 +53,7 @@ export const StudentDashboard: React.FC = () => {
   const [subjects, setSubjects] = useState<EnrolledSubjectNode[]>([]);
   const [logs, setLogs] = useState<StudentAttendanceLog[]>([]);
   const [statsMap, setStatsMap] = useState<Record<number, { total: number; attended: number }>>({});
+  const [isLoading, setIsLoading] = useState(true);
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [joinCodeToEnroll, setJoinCodeToEnroll] = useState<string>('');
 
