@@ -15,9 +15,7 @@ export const authApi = {
   scanStudentFace: async (imageFile: File): Promise<FaceScanResponse> => {
     const formData = new FormData();
     formData.append('file', imageFile);
-    const res = await apiClient.post('/api/auth/student/scan-face', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const res = await apiClient.post('/api/auth/student/scan-face', formData);
     return res.data;
   },
 
@@ -28,9 +26,7 @@ export const authApi = {
     if (voiceAudio) {
       formData.append('voice_audio', voiceAudio, 'voice.wav');
     }
-    const res = await apiClient.post('/api/auth/student/register', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const res = await apiClient.post('/api/auth/student/register', formData);
     return res.data;
   },
 };

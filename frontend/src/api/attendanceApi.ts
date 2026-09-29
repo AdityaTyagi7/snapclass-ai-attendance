@@ -12,9 +12,7 @@ export const attendanceApi = {
       formData.append('photos', file);
     });
 
-    const res = await apiClient.post('/api/attendance/face-scan', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const res = await apiClient.post('/api/attendance/face-scan', formData);
     return res.data;
   },
 
@@ -26,9 +24,7 @@ export const attendanceApi = {
     formData.append('subject_id', subjectId.toString());
     formData.append('audio', audioFile, 'classroom_audio.wav');
 
-    const res = await apiClient.post('/api/attendance/voice-scan', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const res = await apiClient.post('/api/attendance/voice-scan', formData);
     return res.data;
   },
 

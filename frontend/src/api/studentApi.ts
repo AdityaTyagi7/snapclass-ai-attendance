@@ -16,9 +16,7 @@ export const studentApi = {
     const formData = new FormData();
     formData.append('student_id', studentId.toString());
     formData.append('voice_audio', audioBlob, 'voice.wav');
-    const res = await apiClient.post('/api/student/update-voice', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const res = await apiClient.post('/api/student/update-voice', formData);
     return res.data;
   },
 
