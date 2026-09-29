@@ -196,8 +196,10 @@ async def register_student_endpoint(
         
         if voice_audio:
             audio_bytes = await voice_audio.read()
-            if audio_bytes:
+            if audio_bytes and len(audio_bytes) > 0:
                 voice_emb = get_voice_embedding(audio_bytes)
+                if voice_emb is None:
+                    print(f"[WARN] Voice embedding extraction returned None for student {name}")
                 
         response_data = create_student(name, face_embedding=face_emb, voice_embedding=voice_emb)
         if response_data:
@@ -218,6 +220,12 @@ def get_student_dashboard_data(student_id: int):
     subjects = get_student_subjects(student_id)
     logs = get_student_attendance(student_id)
     
+    # Check student voice profile status
+    student_res = supabase.table("students").select("student_id, name, voice_embedding").eq("student_id", student_id).execute()
+    has_voice = False
+    if student_res.data:
+        has_voice = bool(student_res.data[0].get("voice_embedding"))
+        
     # Calculate stats
     stats_map = {}
     for log in logs:
@@ -228,7 +236,26 @@ def get_student_dashboard_data(student_id: int):
         if log.get("is_present"):
             stats_map[sid]["attended"] += 1
             
-    return {"subjects": subjects, "logs": logs, "stats_map": stats_map}
+    return {"subjects": subjects, "logs": logs, "stats_map": stats_map, "has_voice": has_voice}
+
+@app.post("/api/student/update-voice")
+async def update_student_voice_endpoint(
+    student_id: int = Form(...),
+    voice_audio: UploadFile = File(...),
+):
+    audio_bytes = await voice_audio.read()
+    if not audio_bytes or len(audio_bytes) == 0:
+        raise HTTPException(status_code=400, detail="Audio file is empty")
+    
+    voice_emb = get_voice_embedding(audio_bytes)
+    if not voice_emb:
+        raise HTTPException(status_code=400, detail="Could not extract voice features. Please record 2-3 seconds of clear speech and try again.")
+    
+    res = supabase.table("students").update({"voice_embedding": voice_emb}).eq("student_id", student_id).execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Student not found")
+        
+    return {"success": True, "message": "Voice biometric profile registered successfully!", "student": res.data[0]}
 
 @app.post("/api/student/enroll")
 def enroll_student_endpoint(req: EnrollSubjectRequest):

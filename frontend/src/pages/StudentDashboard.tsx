@@ -7,6 +7,7 @@ import {
   Calendar,
   CheckCircle2,
   GraduationCap,
+  Mic,
   Trash2,
   UserCheck,
   UserPlus,
@@ -21,10 +22,12 @@ import { AppShell } from '../components/layout/AppShell';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
+import { Dialog } from '../components/ui/Dialog';
 import { Progress } from '../components/ui/Progress';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useToast } from '../components/ui/Toast';
 import { EnrollSubjectModal } from '../components/widgets/EnrollSubjectModal';
+import { AudioRecorder } from '../components/widgets/AudioRecorder';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -56,6 +59,11 @@ export const StudentDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [joinCodeToEnroll, setJoinCodeToEnroll] = useState<string>('');
+
+  const [hasVoicePass, setHasVoicePass] = useState(false);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [voiceBlob, setVoiceBlob] = useState<Blob | null>(null);
+  const [isSavingVoice, setIsSavingVoice] = useState(false);
 
   // Auto popup join class modal when invited via link
   useEffect(() => {
@@ -91,10 +99,31 @@ export const StudentDashboard: React.FC = () => {
       setSubjects(res.subjects || []);
       setLogs(res.logs || []);
       setStatsMap(res.stats_map || {});
+      setHasVoicePass(!!res.has_voice);
     } catch (err) {
       console.error('Error fetching student dashboard data:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSaveVoice = async () => {
+    if (!student || !voiceBlob) {
+      toast({ type: 'warning', title: 'Audio Required', description: 'Please record your voice snippet first' });
+      return;
+    }
+    setIsSavingVoice(true);
+    try {
+      const res = await studentApi.updateVoice(student.student_id, voiceBlob);
+      toast({ type: 'success', title: 'Voice Pass Active', description: res.message || 'Voice profile updated!' });
+      setHasVoicePass(true);
+      setIsVoiceModalOpen(false);
+      setVoiceBlob(null);
+      fetchData();
+    } catch (err: any) {
+      toast({ type: 'error', title: 'Registration Failed', description: err.message });
+    } finally {
+      setIsSavingVoice(false);
     }
   };
 
@@ -259,18 +288,27 @@ export const StudentDashboard: React.FC = () => {
               transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 className="text-xl font-semibold text-white tracking-tight">Enrolled Courses</h2>
                   <p className="text-xs text-[#a1a1aa] mt-0.5">Track your attendance progress and enrolled subjects</p>
                 </div>
-                <Button
-                  variant="default"
-                  onClick={() => setIsEnrollModalOpen(true)}
-                  icon={<UserPlus className="w-4 h-4" />}
-                >
-                  Enroll in Subject
-                </Button>
+                <div className="flex items-center gap-2.5">
+                  <Button
+                    variant={hasVoicePass ? "secondary" : "default"}
+                    onClick={() => setIsVoiceModalOpen(true)}
+                    icon={<Mic className={`w-4 h-4 ${hasVoicePass ? 'text-emerald-400' : 'text-amber-400'}`} />}
+                  >
+                    {hasVoicePass ? "Voice Pass Active ✓" : "Register Voice Pass"}
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={() => setIsEnrollModalOpen(true)}
+                    icon={<UserPlus className="w-4 h-4" />}
+                  >
+                    Enroll in Subject
+                  </Button>
+                </div>
               </div>
 
               {isLoading ? (
@@ -516,6 +554,49 @@ export const StudentDashboard: React.FC = () => {
         }}
         defaultCode={joinCodeToEnroll}
       />
+
+      {/* Voice Pass Biometric Modal */}
+      <Dialog
+        isOpen={isVoiceModalOpen}
+        onClose={() => {
+          setIsVoiceModalOpen(false);
+          setVoiceBlob(null);
+        }}
+        title="Biometric Voice Pass"
+        description="Record a 2-3 second voice sample to enable automated voice recognition during attendance."
+        maxWidth="md"
+      >
+        <div className="space-y-4">
+          <AudioRecorder
+            onAudioRecorded={(blob) => setVoiceBlob(blob)}
+            label="Press record and say clearly: 'Present, I am attending this class'"
+          />
+
+          <div className="flex justify-end gap-3 pt-3 border-t border-[#27272a]">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setIsVoiceModalOpen(false);
+                setVoiceBlob(null);
+              }}
+              disabled={isSavingVoice}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={handleSaveVoice}
+              disabled={!voiceBlob || isSavingVoice}
+              isLoading={isSavingVoice}
+              icon={<CheckCircle2 className="w-4 h-4" />}
+            >
+              Save Voice Biometrics
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </AppShell>
   );
 };
