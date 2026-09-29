@@ -35,9 +35,34 @@ from src.pipelines.face_pipeline import (
 from src.pipelines.voice_pipeline import (
     get_voice_embedding,
     process_bulk_audio,
+    load_voice_encoder,
 )
+from contextlib import asynccontextmanager
+import logging
 
-app = FastAPI(title="SnapClass API", version="1.0.0")
+logger = logging.getLogger(__name__)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Pre-warm ML models at server startup to avoid first-request timeout."""
+    import asyncio
+    loop = asyncio.get_event_loop()
+    try:
+        logger.info("Pre-warming VoiceEncoder model...")
+        await loop.run_in_executor(None, load_voice_encoder)
+        logger.info("VoiceEncoder ready.")
+    except Exception as e:
+        logger.warning(f"VoiceEncoder pre-warm failed (non-fatal): {e}")
+    try:
+        from src.pipelines.face_pipeline import load_dlib_models
+        logger.info("Pre-warming dlib face models...")
+        await loop.run_in_executor(None, load_dlib_models)
+        logger.info("dlib models ready.")
+    except Exception as e:
+        logger.warning(f"dlib pre-warm failed (non-fatal): {e}")
+    yield
+
+app = FastAPI(title="SnapClass API", version="1.0.0", lifespan=lifespan)
 
 # Enable CORS for React frontend
 app.add_middleware(
@@ -82,6 +107,11 @@ class LogEntry(BaseModel):
 class AttendanceConfirmRequest(BaseModel):
     logs: List[LogEntry]
 
+
+@app.get("/")
+@app.head("/")
+def root():
+    return {"status": "ok", "service": "SnapClass AI Attendance API"}
 
 @app.get("/api/health")
 def health_check():
