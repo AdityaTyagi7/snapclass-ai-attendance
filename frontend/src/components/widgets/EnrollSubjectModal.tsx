@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog } from '../ui/Dialog';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { studentApi } from '../../api/studentApi';
 import { useAuth } from '../../context/AuthContext';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Sparkles } from 'lucide-react';
 
 interface EnrollSubjectModalProps {
   isOpen: boolean;
@@ -24,6 +24,12 @@ export const EnrollSubjectModal: React.FC<EnrollSubjectModalProps> = ({
   const { toast } = useToast();
   const [subjectCode, setSubjectCode] = useState(defaultCode);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSubjectCode(defaultCode);
+    }
+  }, [defaultCode, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,8 +54,22 @@ export const EnrollSubjectModal: React.FC<EnrollSubjectModalProps> = ({
   };
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title="Enroll in Subject" description="Enter the subject join code provided by your instructor">
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title={defaultCode ? "Join Invited Class" : "Enroll in Subject"}
+      description={defaultCode ? "You were invited to join this class with an invite link." : "Enter the subject join code provided by your instructor"}
+    >
       <form onSubmit={handleSubmit} className="space-y-4">
+        {defaultCode && (
+          <div className="p-3 bg-[#18181b] border border-[#27272a] rounded-xl flex items-center gap-3 text-xs text-[#a1a1aa]">
+            <Sparkles className="w-4 h-4 text-white shrink-0" />
+            <div>
+              <span className="text-white font-medium">Invitation detected:</span> Confirm your code below to enroll immediately.
+            </div>
+          </div>
+        )}
+
         <Input
           label="Subject Join Code"
           placeholder="e.g. CS101"
@@ -63,7 +83,7 @@ export const EnrollSubjectModal: React.FC<EnrollSubjectModalProps> = ({
             Cancel
           </Button>
           <Button type="submit" variant="default" isLoading={isLoading} icon={<UserPlus className="w-4 h-4" />}>
-            Enroll Now
+            {defaultCode ? "Confirm & Join Class" : "Enroll Now"}
           </Button>
         </div>
       </form>

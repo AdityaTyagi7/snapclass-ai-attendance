@@ -8,6 +8,19 @@ import { StudentDashboard } from './pages/StudentDashboard';
 const MainContent: React.FC = () => {
   const { userRole } = useAuth();
 
+  React.useEffect(() => {
+    // Preserve invite join code across authentication flow
+    const params = new URLSearchParams(window.location.search);
+    const code =
+      params.get('join-code') ||
+      params.get('join_code') ||
+      params.get('joinCode') ||
+      params.get('code');
+    if (code) {
+      localStorage.setItem('snapclass_pending_join_code', code.trim().toUpperCase());
+    }
+  }, []);
+
   if (!userRole) {
     return <AuthPage />;
   }

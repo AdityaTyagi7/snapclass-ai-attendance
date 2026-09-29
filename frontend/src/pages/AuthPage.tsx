@@ -99,6 +99,23 @@ export const AuthPage: React.FC = () => {
   const { toast } = useToast();
 
   const [activePortal, setActivePortal] = useState<"teacher" | "student">("teacher");
+  const [pendingJoinCode, setPendingJoinCode] = useState<string>("");
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code =
+      params.get("join-code") ||
+      params.get("join_code") ||
+      params.get("joinCode") ||
+      params.get("code") ||
+      localStorage.getItem("snapclass_pending_join_code");
+    if (code) {
+      const clean = code.trim().toUpperCase();
+      setPendingJoinCode(clean);
+      localStorage.setItem("snapclass_pending_join_code", clean);
+      setActivePortal("student");
+    }
+  }, []);
 
   // Teacher Login / Register State
   const [teacherMode, setTeacherMode] = useState<"login" | "register">("login");
@@ -568,6 +585,26 @@ export const AuthPage: React.FC = () => {
           {/* STUDENT PORTAL */}
           {activePortal === "student" && (
             <>
+              {pendingJoinCode && (
+                <div
+                  style={stagger(0)}
+                  className={cn(
+                    ENTER,
+                    "p-3.5 bg-[#18181b] border border-[#27272a] rounded-xl flex items-center gap-3 text-xs"
+                  )}
+                >
+                  <div className="px-2.5 py-1 bg-white text-black font-mono font-bold rounded-lg text-xs tracking-wider shrink-0 shadow-xs">
+                    {pendingJoinCode}
+                  </div>
+                  <div className="flex-1 text-[#a1a1aa] leading-snug">
+                    <span className="text-white font-medium block">Class Invitation</span>
+                    {scanStep === "camera"
+                      ? "Scan your face to log in and automatically join this class."
+                      : "Complete registration to join this class automatically."}
+                  </div>
+                </div>
+              )}
+
               <div data-slot="login-header" className="flex flex-col gap-2">
                 <h1
                   style={stagger(1)}

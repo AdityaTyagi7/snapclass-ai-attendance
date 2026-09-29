@@ -53,9 +53,34 @@ export const StudentDashboard: React.FC = () => {
   const [subjects, setSubjects] = useState<EnrolledSubjectNode[]>([]);
   const [logs, setLogs] = useState<StudentAttendanceLog[]>([]);
   const [statsMap, setStatsMap] = useState<Record<number, { total: number; attended: number }>>({});
-  const [isLoading, setIsLoading] = useState(true);
-
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
+  const [joinCodeToEnroll, setJoinCodeToEnroll] = useState<string>('');
+
+  // Auto popup join class modal when invited via link
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlCode =
+      params.get('join-code') ||
+      params.get('join_code') ||
+      params.get('joinCode') ||
+      params.get('code');
+    const storedCode = localStorage.getItem('snapclass_pending_join_code');
+    const code = (urlCode || storedCode || '').trim().toUpperCase();
+
+    if (code) {
+      setJoinCodeToEnroll(code);
+      setIsEnrollModalOpen(true);
+      localStorage.removeItem('snapclass_pending_join_code');
+      if (urlCode) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('join-code');
+        url.searchParams.delete('join_code');
+        url.searchParams.delete('joinCode');
+        url.searchParams.delete('code');
+        window.history.replaceState({}, document.title, url.pathname + (url.search ? url.search : ''));
+      }
+    }
+  }, []);
 
   const fetchData = async () => {
     if (!student) return;
@@ -480,8 +505,15 @@ export const StudentDashboard: React.FC = () => {
       {/* Enroll Modal */}
       <EnrollSubjectModal
         isOpen={isEnrollModalOpen}
-        onClose={() => setIsEnrollModalOpen(false)}
-        onEnrolled={fetchData}
+        onClose={() => {
+          setIsEnrollModalOpen(false);
+          setJoinCodeToEnroll('');
+        }}
+        onEnrolled={() => {
+          fetchData();
+          setJoinCodeToEnroll('');
+        }}
+        defaultCode={joinCodeToEnroll}
       />
     </AppShell>
   );
